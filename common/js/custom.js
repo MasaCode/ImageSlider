@@ -21,6 +21,20 @@ imageEffect.prototype = {
     canvas: null,
     canvasContext: null,
     layer: null,
+    currentScreen: {
+        width: 0,
+        height: 0,
+    },
+    previousScreen: {
+        width: 0,
+        height: 0,
+    },
+    imageSize: {
+        width: 0,
+        height: 0,
+    },
+    canChnageSize: true,
+    autoResize: true,
 
     initialize: function (option) {
         if (!option.selector) return null;
@@ -71,6 +85,21 @@ imageEffect.prototype = {
             this.createLayer();
             this[this.option.func[this.funcIndex]](0);
             this.timeoutId = setTimeout(this.start.bind(this), this.option.showTime[this.timeIndex] - this.changeInterval);
+            if (this.autoResize) {
+                this.resizeIntervalId = setInterval(this.onResize.bind(this), 100);
+            } else {
+                // setting window onresize event to execute onResize function.
+                var timer = false;
+                var _self = this;
+                window.onresize = function () {
+                    if (timer !== false) {
+                        clearTimeout(timer);
+                    }
+                    timer = setTimeout(function () {
+                        _self.onResize();
+                    }, 100);
+                };
+            }
         } else {
             console.log('Error : Invalid function name');
         }
@@ -78,6 +107,7 @@ imageEffect.prototype = {
 
     start: function () {
         this.startedAt = 0;
+        if (this.autoResize) clearInterval(this.resizeIntervalId);
         this[this.option.func[this.funcIndex]](0);
         this.intervalId = setInterval(this.update.bind(this), this.option.interval);
     },
@@ -95,15 +125,82 @@ imageEffect.prototype = {
             this.funcIndex = (this.funcIndex + 1 < this.option.func.length) ? this.funcIndex + 1 : 0;
             clearInterval(this.intervalId);
             this.timeoutId = setTimeout(this.start.bind(this), this.option.showTime[this.timeIndex]);
+            if (this.autoResize) this.resizeIntervalId = setInterval(this.onResize.bind(this), 100);
         }
+    },
+
+    onResize: function () {
+        this.setScreenSize();
+        if (this.currentScreen.width === this.previousScreen.width && this.currentScreen.height === this.previousScreen.height) {
+            return;
+        }
+        if (this.canvas) {
+            this.canvas.width = this.currentScreen.width;
+            this.canvas.height = this.currentScreen.height;
+            this.canvasContext = this.canvas.getContext('2d');
+        }
+
+        if (!this.canChnageSize) return;
+        this.scaleToFit(this.option.items[this.currentIndex]);
+        this.scaleToFit(this.option.items[this.nextIndex]);
+    },
+
+    scaleToFit: function (image, canSetPosition) {
+        var rasio = 0;
+        var imageWidth;
+        var imageHeight;
+        var top = 0, left = 0;
+
+        rasio = this.currentScreen.width / image.width;
+        imageWidth = image.width * rasio;
+        imageHeight = image.height * rasio;
+
+        if (imageHeight < this.currentScreen.height) {
+            rasio = this.currentScreen.height / imageHeight;
+            imageWidth = rasio * imageWidth;
+            imageHeight = rasio * imageHeight;
+        }
+
+        image.width = imageWidth.toString();
+        image.height = imageHeight.toString();
+
+        if (canSetPosition !== false) {
+            top = (this.currentScreen.height - imageHeight) / 2.0;
+            left = (this.currentScreen.width - imageWidth) / 2.0;
+            image.style.top = top + 'px';
+            image.style.left = left + 'px';
+        }
+        //console.log(parseFloat(image.style.top.replace('px', '')));
+        return {width: imageWidth, height: imageHeight};
+    },
+
+    setScreenSize: function () {
+        this.previousScreen.width = this.currentScreen.width;
+        this.previousScreen.height = this.currentScreen.height;
+        this.currentScreen.width = window.innerWidth;
+        this.currentScreen.height = window.innerHeight;
+    },
+
+    setImageSize: function (imageSize) {
+        if (!imageSize.width || !imageSize.height) return;
+
+        this.imageSize.width = imageSize.width;
+        this.imageSize.height = imageSize.height;
     },
 
     resetValue: function () {
         this.option.items[this.prevIndex].style.zIndex = 0;
         this.option.items[this.prevIndex].style.opacity = 1.0;
-        this.option.items[this.prevIndex].style.top = '0px';
-        this.option.items[this.prevIndex].style.left = '0px';
         this.option.items[this.currentIndex].style.opacity = 1.0;
+
+        this.setScreenSize();
+
+        for (var i = 0; i < this.option.itemLength; i++) {
+            this.scaleToFit(this.option.items[i]);
+        }
+
+        this.imageSize.width = this.option.items[this.currentIndex].width;
+        this.imageSize.height = this.option.items[this.currentIndex].height;
     },
 
     createCanvas: function () {
@@ -153,6 +250,12 @@ imageEffect.prototype = {
             this.option.items[this.currentIndex].style.zIndex = 10;
             this.option.items[this.nextIndex].style.zIndex = 9;
         }
+        if (this.autoResize) {
+            this.setScreenSize();
+            this.scaleToFit(this.option.items[this.currentIndex]);
+            this.scaleToFit(this.option.items[this.nextIndex]);
+        }
+
         if (playback > 1.00) {
             this.option.items[this.currentIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.zIndex = 10;
@@ -169,129 +272,108 @@ imageEffect.prototype = {
             this.option.items[this.nextIndex].style.opacity = 1.0;
             return;
         }
+        if (this.autoResize) {
+            this.setScreenSize();
+            this.scaleToFit(this.option.items[this.currentIndex]);
+            this.scaleToFit(this.option.items[this.nextIndex]);
+        }
+
         if (playback > 1.00) playback = 1;
         this.option.items[this.currentIndex].style.opacity = 1 - playback;
     },
 
-    // Slide in functions
-    /* slideinleft: function (playback) {
-     var width = window.innerWidth;
-     if (playback === 0) {
-     this.resetValue();
-
-     this.option.items[this.currentIndex].style.zIndex = 9;
-     this.option.items[this.nextIndex].style.zIndex = 10;
-     this.option.items[this.nextIndex].style.opacity = 1.0;
-     this.option.items[this.nextIndex].style.top = '0px';
-     this.option.items[this.nextIndex].style.left = -width + 'px';
-     return;
-     }
-     if (playback > 1.00) playback = 1;
-     var left = (1 - playback) * -width;
-     this.option.items[this.nextIndex].style.left = left + 'px';
-     },
-
-    slideinright: function (playback) {
-        var width = window.innerWidth;
-        if (playback === 0) {
-            this.resetValue();
-
-            this.option.items[this.currentIndex].style.zIndex = 9;
-            this.option.items[this.nextIndex].style.zIndex = 10;
-            this.option.items[this.nextIndex].style.opacity = 1.0;
-            this.option.items[this.nextIndex].style.top = '0px';
-            this.option.items[this.nextIndex].style.left = width + 'px';
-            return;
-        }
-        if (playback > 1.00) playback = 1;
-        var left = (1 - playback) * width;
-        this.option.items[this.nextIndex].style.left = left + 'px';
-    },
-
-    slideintop: function (playback) {
-        var height = window.innerHeight;
-        if (playback === 0) {
-            this.resetValue();
-
-            this.option.items[this.currentIndex].style.zIndex = 9;
-            this.option.items[this.nextIndex].style.zIndex = 10;
-            this.option.items[this.nextIndex].style.opacity = 1.0;
-            this.option.items[this.nextIndex].style.top = -height + 'px';
-            this.option.items[this.nextIndex].style.left = '0px';
-            return;
-        }
-        if (playback > 1.00) playback = 1;
-        var top = (1 - playback) * -height;
-        this.option.items[this.nextIndex].style.top = top + 'px';
-    },
-
-    slideinbottom: function (playback) {
-        var height = window.innerHeight;
-        if (playback === 0) {
-            this.resetValue();
-
-            this.option.items[this.currentIndex].style.zIndex = 9;
-            this.option.items[this.nextIndex].style.zIndex = 10;
-            this.option.items[this.nextIndex].style.opacity = 1.0;
-            this.option.items[this.nextIndex].style.top = height + 'px';
-            this.option.items[this.nextIndex].style.left = '0px';
-            return;
-        }
-        if (playback > 1.00) playback = 1;
-        var top = (1 - playback) * height;
-        this.option.items[this.nextIndex].style.top = top + 'px';
-    },
-*/
-
     slideleftfadein: function (playback) {
-        var width = window.innerWidth;
         if (playback === 0) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 9;
             this.option.items[this.nextIndex].style.zIndex = 10;
             this.option.items[this.nextIndex].style.opacity = 0.0;
-            this.option.items[this.nextIndex].style.left = -width + 'px';
+            this.option.items[this.nextIndex].style.left = -this.option.items[this.nextIndex].width + 'px';
             return;
         }
+        if (this.autoResize) {
+            this.setScreenSize();
+            this.scaleToFit(this.option.items[this.currentIndex]);
+            var size = this.scaleToFit(this.option.items[this.nextIndex], false);
+            this.setImageSize(size);
+        }
+
         if (playback > 1.00) playback = 1;
-        var left = (1 - playback) * -width;
+        var diff = (this.imageSize.width - window.innerWidth) / 2.0;
+        var left = (1 - playback) * -this.imageSize.width - diff;
         this.option.items[this.nextIndex].style.left = left + 'px';
         this.option.items[this.nextIndex].style.opacity = playback;
     },
 
     sliderightfedein: function (playback) {
-        var width = window.innerWidth;
         if (playback === 0) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 9;
             this.option.items[this.nextIndex].style.zIndex = 10;
             this.option.items[this.nextIndex].style.opacity = 0.0;
-            this.option.items[this.nextIndex].style.top = '0px';
-            this.option.items[this.nextIndex].style.left = width + 'px';
+            this.option.items[this.nextIndex].style.left = this.option.items[this.nextIndex].width + 'px';
             return;
         }
+        if (this.autoResize) {
+            this.setScreenSize();
+            this.scaleToFit(this.option.items[this.currentIndex]);
+            var size = this.scaleToFit(this.option.items[this.nextIndex], false);
+            this.setImageSize(size);
+        }
+
         if (playback > 1.00) playback = 1;
-        var left = (1 - playback) * width;
+        var diff = (this.imageSize.width - window.innerWidth) / 2.0;
+        var left = (1 - playback) * this.option.imageSize.width - diff;
         this.option.items[this.nextIndex].style.left = left + 'px';
         this.option.items[this.nextIndex].style.opacity = playback;
     },
 
     slidetopfadein: function (playback) {
-        var height = window.innerHeight;
         if (playback === 0) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 9;
             this.option.items[this.nextIndex].style.zIndex = 10;
             this.option.items[this.nextIndex].style.opacity = 0.0;
-            this.option.items[this.nextIndex].style.top = -height + 'px';
-            this.option.items[this.nextIndex].style.left = '0px';
+            this.option.items[this.nextIndex].style.top = -this.option.items[this.nextIndex].height + 'px';
             return;
         }
+        if (this.autoResize) {
+            this.setScreenSize();
+            this.scaleToFit(this.option.items[this.currentIndex]);
+            var size = this.scaleToFit(this.option.items[this.nextIndex], false);
+            this.setImageSize(size);
+        }
+
         if (playback > 1.00) playback = 1;
-        var top = (1 - playback) * -height;
+        var diff = (this.imageSize.height - window.innerHeight) / 2.0;
+        var top = (1 - playback) * -(this.imageSize.height) - diff;
+        this.option.items[this.nextIndex].style.top = top + 'px';
+        this.option.items[this.nextIndex].style.opacity = playback;
+    },
+
+    slidebottomfadein: function (playback) {
+        if (playback === 0) {
+            this.resetValue();
+
+            this.option.items[this.currentIndex].style.zIndex = 9;
+            this.option.items[this.nextIndex].style.zIndex = 10;
+            this.option.items[this.nextIndex].style.opacity = 0.0;
+            this.option.items[this.nextIndex].style.top = -this.option.items[this.nextIndex].height + 'px';
+            return;
+        }
+        if (this.autoResize) {
+            this.setScreenSize();
+            this.scaleToFit(this.option.items[this.currentIndex]);
+            var size = this.scaleToFit(this.option.items[this.nextIndex], false);
+            this.setImageSize(size);
+        }
+
+        if (playback > 1.00) playback = 1;
+        var diff = (this.imageSize.height - window.innerHeight) / 2.0;
+        var top = (1 - playback) * this.imageSize.height - diff;
         this.option.items[this.nextIndex].style.top = top + 'px';
         this.option.items[this.nextIndex].style.opacity = playback;
     },
@@ -305,25 +387,26 @@ imageEffect.prototype = {
             this.option.items[this.currentIndex].style.zIndex = 10;
             this.option.items[this.nextIndex].style.zIndex = 9;
             this.option.items[this.nextIndex].style.opacity = 1.0;
-            this.option.items[this.nextIndex].style.top = '0px';
-            this.option.items[this.nextIndex].style.left = '0px';
             return;
+        }
+        if (this.autoResize) {
+            this.setScreenSize();
+            var size = this.scaleToFit(this.option.items[this.nextIndex]);
+            this.setImageSize(size);
         }
         if (playback > 1.00) playback = 1;
         var range = (1 - playback);
         this.option.items[this.currentIndex].style.opacity = range;
-        this.option.items[this.currentIndex].style.width = range * width + 'px';
-        this.option.items[this.currentIndex].style.height = range * height + 'px';
+        this.option.items[this.currentIndex].style.width = range * this.imageSize.width + 'px';
+        this.option.items[this.currentIndex].style.height = range * this.imageSize.height + 'px';
 
         if (playback === 1) {
-            this.option.items[this.currentIndex].style.width = '100%';
-            this.option.items[this.currentIndex].style.height = '100vh';
+            this.option.items[this.currentIndex].style.width = this.imageSize.width + 'px';
+            this.option.items[this.currentIndex].style.height = this.imageSize.height + 'px';
         }
     },
 
     fadebiggerin: function (playback) {
-        var width = window.innerWidth;
-        var height = window.innerHeight;
         if (playback === 0) {
             this.resetValue();
 
@@ -334,15 +417,16 @@ imageEffect.prototype = {
             this.option.items[this.nextIndex].style.height = '0px';
             return;
         }
+        if (this.autoResize) {
+            this.setScreenSize();
+            var size = this.scaleToFit(this.option.items[this.currentIndex]);
+            this.setImageSize(size);
+        }
+
         if (playback > 1.00) playback = 1;
         this.option.items[this.nextIndex].style.opacity = playback;
-        this.option.items[this.nextIndex].style.width = playback * width + 'px';
-        this.option.items[this.nextIndex].style.height = playback * height + 'px';
-
-        if (playback === 1) {
-            this.option.items[this.nextIndex].style.width = '100%';
-            this.option.items[this.nextIndex].style.height = '100vh';
-        }
+        this.option.items[this.nextIndex].style.width = playback * this.imageSize.width + 'px';
+        this.option.items[this.nextIndex].style.height = playback * this.imageSize.height + 'px';
     },
 
     rotatefadeout: function (playback) {
@@ -352,9 +436,12 @@ imageEffect.prototype = {
             this.option.items[this.currentIndex].style.zIndex = 10;
             this.option.items[this.nextIndex].style.zIndex = 9;
             this.option.items[this.nextIndex].style.opacity = 1.0;
-            this.option.items[this.nextIndex].style.top = '0px';
-            this.option.items[this.nextIndex].style.left = '0px';
             return;
+        }
+        if (this.autoResize) {
+            this.setScreenSize();
+            this.scaleToFit(this.option.items[this.currentIndex]);
+            this.scaleToFit(this.option.items[this.nextIndex]);
         }
         if (playback > 1.00) playback = 1;
         this.option.items[this.currentIndex].style.opacity = (1 - playback);
@@ -364,57 +451,58 @@ imageEffect.prototype = {
     },
 
     rotatesmallerout: function (playback) {
-        var width = window.innerWidth;
-        var height = window.innerHeight;
         if (playback === 0) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 10;
             this.option.items[this.nextIndex].style.zIndex = 9;
             this.option.items[this.nextIndex].style.opacity = 1.0;
-            this.option.items[this.nextIndex].style.top = '0px';
-            this.option.items[this.nextIndex].style.left = '0px';
             return;
         }
+        if (this.autoResize) {
+            this.setScreenSize();
+            var size = this.scaleToFit(this.option.items[this.nextIndex]);
+            this.setImageSize(size);
+        }
+
         if (playback > 1.00) playback = 1;
         var range = (1 - playback);
         this.option.items[this.currentIndex].style.opacity = (1 - playback);
         this.option.items[this.currentIndex].style.transform = 'rotate(' + playback * 360 + 'deg)';
         this.option.items[this.currentIndex].style.msTransform = 'rotate(' + playback * 360 + 'deg)';
         this.option.items[this.currentIndex].style.webkittransform = 'rotate(' + playback * 360 + 'deg)';
-        this.option.items[this.currentIndex].style.width = range * width + 'px';
-        this.option.items[this.currentIndex].style.height = range * height + 'px';
+        this.option.items[this.currentIndex].style.width = range * this.imageSize.width + 'px';
+        this.option.items[this.currentIndex].style.height = range * this.imageSize.height + 'px';
 
         if (playback === 1) {
-            this.option.items[this.currentIndex].style.width = '100%';
-            this.option.items[this.currentIndex].style.height = '100vh';
+            this.option.items[this.currentIndex].style.width = this.imageSize.width + 'px';
+            this.option.items[this.currentIndex].style.height = this.imageSize.height + 'px';
         }
     },
 
     rotatebiggerin: function (playback) {
-        var width = window.innerWidth;
-        var height = window.innerHeight;
         if (playback === 0) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 9;
             this.option.items[this.nextIndex].style.zIndex = 10;
             this.option.items[this.nextIndex].style.opacity = 0.0;
-            this.option.items[this.nextIndex].style.top = '0px';
-            this.option.items[this.nextIndex].style.left = '0px';
+            this.option.items[this.nextIndex].style.width = '0px';
+            this.option.items[this.nextIndex].style.height = '0px';
             return;
         }
+        if (this.autoResize) {
+            this.setScreenSize();
+            var size = this.scaleToFit(this.option.items[this.currentIndex]);
+            this.setImageSize(size);
+        }
+
         this.option.items[this.nextIndex].style.opacity = playback;
         this.option.items[this.nextIndex].style.transform = 'rotate(' + playback * 360 + 'deg)';
         this.option.items[this.nextIndex].style.msTransform = 'rotate(' + playback * 360 + 'deg)';
         this.option.items[this.nextIndex].style.webkittransform = 'rotate(' + playback * 360 + 'deg)';
-        this.option.items[this.nextIndex].style.width = playback * width + 'px';
-        this.option.items[this.nextIndex].style.height = playback * height + 'px';
-
-        if (playback === 1) {
-            this.option.items[this.nextIndex].style.width = '100%';
-            this.option.items[this.nextIndex].style.height = '100vh';
-        }
+        this.option.items[this.nextIndex].style.width = playback * this.imageSize.width + 'px';
+        this.option.items[this.nextIndex].style.height = playback * this.imageSize.height + 'px';
     },
 
     fadeintocenter: function (playback) {
@@ -426,20 +514,26 @@ imageEffect.prototype = {
             this.option.items[this.currentIndex].style.zIndex = 10;
             this.option.items[this.nextIndex].style.zIndex = 9;
             this.option.items[this.nextIndex].style.opacity = 1.0;
-            this.option.items[this.nextIndex].style.top = '0px';
-            this.option.items[this.nextIndex].style.left = '0px';
             return;
         }
+        if (this.autoResize) {
+            this.setScreenSize();
+            var size = this.scaleToFit(this.option.items[this.nextIndex]);
+            this.setImageSize(size);
+        }
+
         if (playback > 1.00) playback = 1;
+        var diffX = (this.imageSize.width - width) / 2.0;
+        var diffY = (this.imageSize.height - height) / 2.0;
         this.option.items[this.currentIndex].style.opacity = (1 - playback);
-        this.option.items[this.currentIndex].style.left = playback * width / 2.0 + 'px';
-        this.option.items[this.currentIndex].style.top = playback * height / 2.0 + 'px';
-        this.option.items[this.currentIndex].style.width = (1 - playback) * width + 'px';
-        this.option.items[this.currentIndex].style.height = (1 - playback) * height + 'px';
+        this.option.items[this.currentIndex].style.left = (playback * width / 2.0 - ((1 - playback) * diffX)) + 'px';
+        this.option.items[this.currentIndex].style.top = (playback * height / 2.0 - ((1 - playback) * diffY)) + 'px';
+        this.option.items[this.currentIndex].style.width = (1 - playback) * this.imageSize.width + 'px';
+        this.option.items[this.currentIndex].style.height = (1 - playback) * this.imageSize.height + 'px';
 
         if (playback === 1) {
-            this.option.items[this.currentIndex].style.width = '100%';
-            this.option.items[this.currentIndex].style.height = '100vh';
+            this.option.items[this.currentIndex].style.width = this.imageSize.width + 'px';
+            this.option.items[this.currentIndex].style.height = this.imageSize.height + 'px';
         }
     },
 
@@ -452,45 +546,60 @@ imageEffect.prototype = {
             this.option.items[this.currentIndex].style.zIndex = 9;
             this.option.items[this.nextIndex].style.zIndex = 10;
             this.option.items[this.nextIndex].style.opacity = 1.0;
-            this.option.items[this.nextIndex].style.top = width / 2.0 + 'px';
-            this.option.items[this.nextIndex].style.left = height / 2.0 + 'px';
+            this.option.items[this.nextIndex].style.top = height / 2.0 + 'px';
+            this.option.items[this.nextIndex].style.left = width / 2.0 + 'px';
             this.option.items[this.nextIndex].style.width = '0px';
             this.option.items[this.nextIndex].style.height = '0px';
             return;
         }
+        if (this.autoResize) {
+            this.setScreenSize();
+            var size = this.scaleToFit(this.option.items[this.currentIndex]);
+            this.setImageSize(size);
+        }
+
         if (playback > 1.00) playback = 1;
+        var diffX = (this.imageSize.width - width) / 2.0;
+        var diffY = (this.imageSize.height - height) / 2.0;
         this.option.items[this.nextIndex].style.opacity = playback;
-        this.option.items[this.nextIndex].style.width = playback * width + 'px';
-        this.option.items[this.nextIndex].style.height = playback * height + 'px'
-        this.option.items[this.nextIndex].style.left = (1 - playback) * width / 2.0 + 'px';
-        this.option.items[this.nextIndex].style.top = (1 - playback) * height / 2.0 + 'px';
+        this.option.items[this.nextIndex].style.width = playback * this.imageSize.width + 'px';
+        this.option.items[this.nextIndex].style.height = playback * this.imageSize.height + 'px';
+        this.option.items[this.nextIndex].style.left = ((1 - playback) * width / 2.0 - (playback) * diffX) + 'px';
+        this.option.items[this.nextIndex].style.top = ((1 - playback) * height / 2.0 - (playback) * diffY) + 'px';
 
         if (playback === 1) {
-            this.option.items[this.nextIndex].style.width = '100%';
-            this.option.items[this.nextIndex].style.height = '100vh';
+            this.option.items[this.nextIndex].style.width = this.imageSize.width + 'px';
+            this.option.items[this.nextIndex].style.height = this.imageSize.height + 'px';
         }
     },
 
     modalin: function (playback) {
         var width = window.innerWidth;
         if (playback === 0) {
+            if (this.option.items[this.nextIndex].style.width === '0px') return;
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 9;
             this.option.items[this.nextIndex].style.zIndex = 10;
             this.option.items[this.nextIndex].style.opacity = 0.0;
             this.option.items[this.nextIndex].style.width = '0px';
-            this.option.items[this.nextIndex].style.left = width / 2.0 + 'px';
+            this.option.items[this.nextIndex].style.left = this.imageSize.width / 2.0 + 'px';
             return;
         }
+        if (this.autoResize) {
+            this.setScreenSize();
+            var size = this.scaleToFit(this.option.items[this.currentIndex]);
+            this.setImageSize(size);
+        }
+
         if (playback > 1.00) playback = 1;
+        var diff = (this.imageSize.width - width) / 2.0;
         this.option.items[this.nextIndex].style.opacity = playback;
-        this.option.items[this.nextIndex].style.left = (1 - playback) * width / 2.0 + 'px';
-        this.option.items[this.nextIndex].style.width = playback * width + 'px';
+        this.option.items[this.nextIndex].style.left = ((1 - playback) * width / 2.0 - diff) + 'px';
+        this.option.items[this.nextIndex].style.width = playback * this.imageSize.width + 'px';
 
         if (playback === 1) {
-            this.option.items[this.nextIndex].width = '100%';
-            this.option.items[this.nextIndex].style.left = '0px';
+            this.option.items[this.nextIndex].style.width = this.imageSize.width + 'px';
         }
     },
 
@@ -502,106 +611,127 @@ imageEffect.prototype = {
             this.option.items[this.currentIndex].style.zIndex = 10;
             this.option.items[this.nextIndex].style.zIndex = 9;
             this.option.items[this.nextIndex].style.opacity = 1.0;
-            this.option.items[this.nextIndex].style.left = '0px';
             return;
         }
+        if (this.autoResize) {
+            this.setScreenSize();
+            var size = this.scaleToFit(this.option.items[this.nextIndex]);
+            this.setImageSize(size);
+        }
+
         if (playback > 1.00) playback = 1;
         var range = 1 - playback;
+        var diff = (this.imageSize.width - width) / 2.0;
         this.option.items[this.currentIndex].style.opacity = range;
-        this.option.items[this.currentIndex].style.width = range * width + 'px';
-        this.option.items[this.currentIndex].style.left = playback * width / 2.0 + 'px';
+        this.option.items[this.currentIndex].style.width = range * this.imageSize.width + 'px';
+        this.option.items[this.currentIndex].style.left = (playback * this.imageSize.width / 2.0 - (1 - playback) * diff) + 'px';
 
         if (playback === 1) {
-            this.option.items[this.currentIndex].style.width = '100%';
-            this.option.items[this.currentIndex].style.left = '0px';
+            this.option.items[this.currentIndex].style.width = this.imageSize.width + 'px';
         }
     },
 
     doorleftout: function (playback) {
-        var width = window.innerWidth;
         if (playback === 0) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 10;
             this.option.items[this.nextIndex].style.zIndex = 9;
             this.option.items[this.nextIndex].style.opacity = 1.0;
-            this.option.items[this.nextIndex].style.left = '0px';
             return;
         }
+        if (this.autoResize) {
+            this.setScreenSize();
+            var size = this.scaleToFit(this.option.items[this.nextIndex]);
+            this.setImageSize(size);
+        }
+
         if (playback > 1.00) playback = 1;
         var range = 1 - playback;
         this.option.items[this.currentIndex].style.opacity = range;
-        this.option.items[this.currentIndex].style.width = range * width + 'px';
+        this.option.items[this.currentIndex].style.width = range * this.imageSize.width + 'px';
 
         if (playback === 1) {
-            this.option.items[this.currentIndex].style.width = '100%';
+            this.option.items[this.currentIndex].style.width = this.imageSize.width + 'px';
         }
     },
 
     doorrightout: function (playback) {
-        var width = window.innerWidth;
         if (playback === 0) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 10;
             this.option.items[this.nextIndex].style.zIndex = 9;
             this.option.items[this.nextIndex].style.opacity = 1.0;
-            this.option.items[this.nextIndex].style.left = '0px';
             return;
         }
+        if (this.autoResize) {
+            this.setScreenSize();
+            var size = this.scaleToFit(this.option.items[this.nextIndex]);
+            this.setImageSize(size);
+        }
+
         if (playback > 1.00) playback = 1;
         var range = 1 - playback;
+        var diff = (this.imageSize.width - window.innerWidth) / 2.0;
         this.option.items[this.currentIndex].style.opacity = range;
-        this.option.items[this.currentIndex].style.left = playback * width + 'px';
-        this.option.items[this.currentIndex].style.width = range * width + 'px';
+        this.option.items[this.currentIndex].style.left = (playback * this.imageSize.width - diff) + 'px';
+        this.option.items[this.currentIndex].style.width = range * this.imageSize.width + 'px';
 
         if (playback === 1) {
-            this.option.items[this.currentIndex].style.width = '100%';
-            this.option.items[this.currentIndex].style.left = '0px';
+            this.option.items[this.currentIndex].style.width = this.imageSize.width + 'px';
         }
     },
 
     doorupout: function (playback) {
-        var height = window.innerHeight;
         if (playback === 0) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 10;
             this.option.items[this.nextIndex].style.zIndex = 9;
             this.option.items[this.nextIndex].style.opacity = 1.0;
-            this.option.items[this.nextIndex].style.left = '0px';
             return;
         }
+        if (this.autoResize) {
+            this.setScreenSize();
+            var size = this.scaleToFit(this.option.items[this.nextIndex]);
+            this.setImageSize(size);
+        }
+
         if (playback > 1.00) playback = 1;
         var range = 1 - playback;
         this.option.items[this.currentIndex].style.opacity = range;
-        this.option.items[this.currentIndex].style.height = range * height + 'px';
+        this.option.items[this.currentIndex].style.height = range * this.imageSize.height + 'px';
 
         if (playback === 1) {
-            this.option.items[this.currentIndex].style.height = '100vh';
+            this.option.items[this.currentIndex].style.height = this.imageSize.height + 'px';
         }
     },
 
     doordownout: function (playback) {
-        var height = window.innerHeight;
         if (playback === 0) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 10;
             this.option.items[this.nextIndex].style.zIndex = 9;
             this.option.items[this.nextIndex].style.opacity = 1.0;
-            this.option.items[this.nextIndex].style.left = '0px';
             return;
         }
+        if (this.autoResize) {
+            this.setScreenSize();
+            var size = this.scaleToFit(this.option.items[this.nextIndex]);
+            this.setImageSize(size);
+        }
+
         if (playback > 1.00) playback = 1;
         var range = 1 - playback;
+        var diff = (this.imageSize.height - window.innerHeight) / 2.0;
         this.option.items[this.currentIndex].style.opacity = range;
-        this.option.items[this.currentIndex].style.top = playback * height + 'px';
-        this.option.items[this.currentIndex].style.height = range * height + 'px';
+        this.option.items[this.currentIndex].style.top = (playback * this.imageSize.height - diff) + 'px';
+        this.option.items[this.currentIndex].style.height = range * this.imageSize.height + 'px';
 
         if (playback === 1) {
-            this.option.items[this.currentIndex].style.height = '100vh';
-            this.option.items[this.currentIndex].style.top = '0px';
+            this.option.items[this.currentIndex].style.height = this.imageSize.height + 'px';
         }
     },
 
@@ -613,24 +743,30 @@ imageEffect.prototype = {
             this.option.items[this.currentIndex].style.zIndex = 10;
             this.option.items[this.nextIndex].style.zIndex = 9;
             this.option.items[this.nextIndex].style.opacity = 1.0;
-            this.option.items[this.nextIndex].style.top = '0px';
             return;
         }
+        if (this.autoResize) {
+            this.setScreenSize();
+            var size = this.scaleToFit(this.option.items[this.nextIndex]);
+            this.setImageSize(size);
+        }
+
         if (playback > 1.00) playback = 1;
         var range = 1 - playback;
+        var diff = (this.imageSize.height - height) / 2.0;
         this.option.items[this.currentIndex].style.opacity = range;
-        this.option.items[this.currentIndex].style.height = range * height + 'px';
-        this.option.items[this.currentIndex].style.top = playback * height / 2.0 + 'px';
+        this.option.items[this.currentIndex].style.height = range * this.imageSize.height + 'px';
+        this.option.items[this.currentIndex].style.top = playback * height / 2.0 - (1 - playback) * diff + 'px';
 
         if (playback === 1) {
-            this.option.items[this.currentIndex].style.height = '100vh';
-            this.option.items[this.currentIndex].style.top = '0px';
+            this.option.items[this.currentIndex].style.height = this.imageSize.height + 'px';
         }
     },
 
     shutfadein: function (playback) {
         var height = window.innerHeight;
         if (playback === 0) {
+            if (this.option.items[this.nextIndex].style.height === '0px') return;
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 9;
@@ -640,15 +776,21 @@ imageEffect.prototype = {
             this.option.items[this.nextIndex].style.height = '0px';
             return;
         }
+        if (this.autoResize) {
+            this.setScreenSize();
+            var size = this.scaleToFit(this.option.items[this.currentIndex]);
+            this.setImageSize(size);
+        }
+
         if (playback > 1.00) playback = 1;
         var range = 1 - playback;
+        var diff = (this.imageSize.height - height) / 2.0;
         this.option.items[this.nextIndex].style.opacity = playback;
-        this.option.items[this.nextIndex].style.height = playback * height + 'px';
-        this.option.items[this.nextIndex].style.top = range * height / 2.0 + 'px';
+        this.option.items[this.nextIndex].style.height = playback * this.imageSize.height + 'px';
+        this.option.items[this.nextIndex].style.top = range * height / 2.0 - (playback * diff) + 'px';
 
         if (playback === 1) {
-            this.option.items[this.nextIndex].style.height = '100vh';
-            this.option.items[this.nextIndex].style.top = '0px';
+            this.option.items[this.nextIndex].style.height = this.imageSize.height + 'px';
         }
     },
 
@@ -677,41 +819,100 @@ imageEffect.prototype = {
     },
 
     pushinleft: function (playback) {
-        this.slideinleft(playback);
-        if (playback === 0) return;
+        if (playback === 0) {
+            this.resetValue();
+
+            this.option.items[this.currentIndex].style.zIndex = 9;
+            this.option.items[this.nextIndex].style.zIndex = 10;
+            this.option.items[this.nextIndex].style.opacity = 1.0;
+            this.option.items[this.nextIndex].style.left = -this.option.items[this.nextIndex].width + 'px';
+            return;
+        }
+        if (this.autoResize) {
+            this.setScreenSize();
+            this.scaleToFit(this.option.items[this.currentIndex], false);
+            var size = this.scaleToFit(this.option.items[this.nextIndex], false);
+            this.setImageSize(size);
+        }
+
         if (playback > 1.00) playback = 1;
-        this.option.items[this.currentIndex].style.left = (playback * 0.75) * window.innerWidth + 'px';
+        var diff = (this.option.items[this.nextIndex].width - window.innerWidth) / 2.0;
+        var left = (1 - playback) * -this.option.items[this.nextIndex].width - diff;
+        this.option.items[this.nextIndex].style.left = left + 'px';
+        this.option.items[this.currentIndex].style.left = (playback * 0.75) * this.imageSize.width - (1 - playback) * 0.75 * diff + 'px';
     },
 
     pushinright: function (playback) {
-        this.slideinright(playback);
-        if (playback === 0) return;
+        if (playback === 0) {
+            this.resetValue();
+
+            this.option.items[this.currentIndex].style.zIndex = 9;
+            this.option.items[this.nextIndex].style.zIndex = 10;
+            this.option.items[this.nextIndex].style.opacity = 1.0;
+            this.option.items[this.nextIndex].style.left = this.option.items[this.nextIndex].width + 'px';
+            return;
+        }
+        if (this.autoResize) {
+            this.setScreenSize();
+            this.scaleToFit(this.option.items[this.currentIndex], false);
+            var size = this.scaleToFit(this.option.items[this.nextIndex], false);
+            this.setImageSize(size);
+        }
+
         if (playback > 1.00) playback = 1;
-        this.option.items[this.currentIndex].style.left = (playback * 0.75) * -window.innerWidth + 'px';
+        var diff = (this.option.items[this.nextIndex].width - window.innerWidth) / 2.0;
+        var left = (1 - playback) * this.option.items[this.nextIndex].width - diff;
+        this.option.items[this.nextIndex].style.left = left + 'px';
+        this.option.items[this.currentIndex].style.left = (playback * 0.75) * -this.imageSize.width - (1 - playback) * 0.75 * diff + 'px';
     },
 
     pushintop: function (playback) {
-        this.slideintop(playback);
-        if (playback === 0) return;
-        if (playback > 1.00) playback = 1;
-        this.option.items[this.currentIndex].style.top = (playback * 0.75) * window.innerHeight + 'px';
+        if (playback === 0) {
+            this.resetValue();
 
-        if (playback === 1) {
-            this.option.items[this.currentIndex].style.zIndex = 0;
-            this.option.items[this.currentIndex].style.top = '0px';
+            this.option.items[this.currentIndex].style.zIndex = 9;
+            this.option.items[this.nextIndex].style.zIndex = 10;
+            this.option.items[this.nextIndex].style.opacity = 1.0;
+            this.option.items[this.nextIndex].style.top = -this.option.items[this.nextIndex].height + 'px';
+            return;
         }
+        if (this.autoResize) {
+            this.setScreenSize();
+            this.scaleToFit(this.option.items[this.currentIndex], false);
+            var size = this.scaleToFit(this.option.items[this.nextIndex], false);
+            this.setImageSize(size);
+        }
+
+        if (playback > 1.00) playback = 1;
+        var diff = (this.option.items[this.nextIndex].height - window.innerHeight) / 2.0;
+        var top = (1 - playback) * -(this.option.items[this.nextIndex].height) - diff;
+        this.option.items[this.nextIndex].style.top = top + 'px';
+        this.option.items[this.currentIndex].style.top = (playback * 0.75) * this.imageSize.height - (1 - playback) * 0.75 * diff + 'px';
     },
 
     pushinbottom: function (playback) {
-        this.slideinbottom(playback);
-        if (playback === 0) return;
-        if (playback > 1.00) playback = 1;
-        this.option.items[this.currentIndex].style.top = (playback * 0.75) * -window.innerHeight + 'px';
+        if (playback === 0) {
+            this.resetValue();
 
-        if (playback === 1) {
-            this.option.items[this.currentIndex].style.zIndex = 0;
-            this.option.items[this.currentIndex].style.top = '0px';
+            this.option.items[this.currentIndex].style.zIndex = 9;
+            this.option.items[this.nextIndex].style.zIndex = 10;
+            this.option.items[this.nextIndex].style.opacity = 1.0;
+            this.option.items[this.nextIndex].style.top = -this.option.items[this.nextIndex].height + 'px';
+            return;
         }
+        if (this.autoResize) {
+            this.setScreenSize();
+            this.scaleToFit(this.option.items[this.currentIndex], false);
+            var size = this.scaleToFit(this.option.items[this.nextIndex], false);
+            this.setImageSize(size);
+        }
+
+        if (playback > 1.00) playback = 1;
+        var diff = (this.imageSize.height - window.innerHeight) / 2.0;
+        var top = (1 - playback) * this.option.items[this.nextIndex].height - diff;
+        this.option.items[this.nextIndex].style.top = top + 'px';
+        this.option.items[this.currentIndex].style.top = (playback * 0.75) * -this.imageSize.height - (1 - playback) * 0.75 * diff + 'px';
+
     },
 
     turninhorizontal: function (playback) {
@@ -721,13 +922,17 @@ imageEffect.prototype = {
             this.option.items[this.currentIndex].style.zIndex = 10;
             this.option.items[this.nextIndex].style.zIndex = 9;
             this.option.items[this.nextIndex].style.opacity = 1.0;
-            this.option.items[this.nextIndex].style.top = '0px';
-            this.option.items[this.nextIndex].style.left = '0px';
             this.option.items[this.nextIndex].style.transform = 'rotateY(180deg)';
             this.option.items[this.nextIndex].style.msTransform = 'rotateY(180deg)';
             this.option.items[this.nextIndex].style.webkittransform = 'rotateY(180deg)';
             return;
         }
+        if (this.autoResize) {
+            this.setScreenSize();
+            this.scaleToFit(this.option.items[this.currentIndex]);
+            this.scaleToFit(this.option.items[this.nextIndex]);
+        }
+
         if (playback > 1.00) playback = 1;
         this.option.items[this.currentIndex].style.transform = 'rotateY(' + playback * 180 + 'deg)';
         this.option.items[this.currentIndex].style.msTransform = 'rotateY(' + playback * 180 + 'deg)';
@@ -754,13 +959,17 @@ imageEffect.prototype = {
             this.option.items[this.currentIndex].style.zIndex = 10;
             this.option.items[this.nextIndex].style.zIndex = 9;
             this.option.items[this.nextIndex].style.opacity = 1.0;
-            this.option.items[this.nextIndex].style.top = '0px';
-            this.option.items[this.nextIndex].style.left = '0px';
             this.option.items[this.nextIndex].style.transform = 'rotateX(180deg)';
             this.option.items[this.nextIndex].style.msTransform = 'rotateX(180deg)';
             this.option.items[this.nextIndex].style.webkittransform = 'rotateX(180deg)';
             return;
         }
+        if (this.autoResize) {
+            this.setScreenSize();
+            this.scaleToFit(this.option.items[this.currentIndex]);
+            this.scaleToFit(this.option.items[this.nextIndex]);
+        }
+
         if (playback > 1.00) playback = 1;
         this.option.items[this.currentIndex].style.transform = 'rotateX(' + playback * 180 + 'deg)';
         this.option.items[this.currentIndex].style.msTransform = 'rotateX(' + playback * 180 + 'deg)';
@@ -784,18 +993,32 @@ imageEffect.prototype = {
         var width = window.innerWidth;
         var height = window.innerHeight;
         this.fadein(playback);
-        if (playback === 0) return;
+        if (playback === 0) {
+            this.resetValue();
+
+            this.option.items[this.currentIndex].style.zIndex = 10;
+            this.option.items[this.nextIndex].style.zIndex = 9;
+            this.option.items[this.nextIndex].style.opacity = 1.0;
+            return;
+        }
+        if (this.autoResize) {
+            this.setScreenSize();
+            var size = this.scaleToFit(this.option.items[this.nextIndex]);
+            this.setImageSize(size);
+        }
+
         if (playback > 1.00) playback = 1;
-        this.option.items[this.currentIndex].style.width = (playback + 1) * width + 'px'
-        this.option.items[this.currentIndex].style.left = -(playback) * width / 2.0 + 'px';
-        this.option.items[this.currentIndex].style.height = (playback + 1) * height + 'px'
-        this.option.items[this.currentIndex].style.top = -(playback) * height / 2.0 + 'px';
+        var diffX = (this.imageSize.width - width) / 2.0;
+        var diffY = (this.imageSize.height - height) / 2.0;
+        this.option.items[this.currentIndex].style.width = (playback + 1) * this.imageSize.width + 'px'
+        this.option.items[this.currentIndex].style.left = -(playback) * width / 2.0 - (1 - playback) * diffX + 'px';
+        this.option.items[this.currentIndex].style.height = (playback + 1) * this.imageSize.height + 'px'
+        this.option.items[this.currentIndex].style.top = -(playback) * height / 2.0 - (1 - playback) * diffY + 'px';
+        this.option.items[this.currentIndex].style.opacity = 1 - playback;
 
         if (playback === 1) {
-            this.option.items[this.currentIndex].style.width = '100%';
-            this.option.items[this.currentIndex].style.left = '0px';
-            this.option.items[this.currentIndex].style.height = '100vh';
-            this.option.items[this.currentIndex].style.top = '0px';
+            this.option.items[this.currentIndex].style.width = this.imageSize.width + 'px';
+            this.option.items[this.currentIndex].style.height = this.imageSize.height + 'px';
         }
     },
     /*
