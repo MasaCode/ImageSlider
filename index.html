@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <Title>Template</Title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta lang="en">
+
+    <!-- for reset -->
+    <link rel="stylesheet" href="common/css/reset.css">
+    <!-- for styling -->
+    <link rel="stylesheet" href="common/css/main.css">
+</head>
+
+<body onload="onLoadFunction()">
+    <div id="test" class="effect-wrapper">
+        <img class="active" src="common/images/sky01.jpg">
+        <img src="common/images/sky02.jpg">
+        <img src="common/images/sky03.jpg">
+        <img src="common/images/sky05.jpg">
+        <img src="common/images/sky04.jpg">
+    </div>
+    
+    <div id="canvasWrapper">
+        <canvas id="characterAnimation"></canvas>
+    </div>
+
+    <script type="text/javascript" src="common/js/custom.js"></script>
+    <script type="text/javascript" src="common/js/canvasCharacter.js"></script>
+    <script type="text/javascript">
+        new masaCharacter('#characterAnimation');
+
+        function onLoadFunction(){
+            var test = new imageEffect({
+                selector     : '#test',
+                showTime     : 5000,
+                interval     : 20,
+                step         : 1,
+                func         : ['shutfadein', 'fadeintocenter'],
+            });
+        }
+    </script>
+</body>
+</html>
