@@ -10,7 +10,7 @@
     <!-- for reset -->
     <link rel="stylesheet" href="common/css/reset.css">
     <!-- for styling -->
-    <link rel="stylesheet" href="common/css/main.css">
+    <link rel="stylesheet" href="common/css/imageSlider.css">
 </head>
 
 <body onload="onLoadFunction()">
@@ -21,16 +21,9 @@
         <img src="common/images/sky05.jpg">
         <img src="common/images/sky04.jpg">
     </div>
-    
-    <div id="canvasWrapper">
-        <canvas id="characterAnimation"></canvas>
-    </div>
 
-    <script type="text/javascript" src="common/js/custom.js"></script>
-    <script type="text/javascript" src="common/js/canvasCharacter.js"></script>
+    <script type="text/javascript" src="common/js/imageSlider.js"></script>
     <script type="text/javascript">
-        new masaCharacter('#characterAnimation');
-
         function onLoadFunction(){
             var test = new imageEffect({
                 selector     : '#test',
