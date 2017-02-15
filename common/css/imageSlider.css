@@ -19,22 +19,3 @@
     z-index: 10;
     opacity: 1.0;
 }
-body{
-    width: 100%;
-}
-
-#canvasWrapper{
-    position: fixed;
-    left: 0px;
-    right: 0px;
-    top: 0px;
-    bottom: 0px;
-    z-index: 20;
-}
-
-#characterAnimation{
-    position: absolute;
-    left: 0px;
-    top: 0px;
-    z-index: 20;
-}
