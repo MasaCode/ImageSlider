@@ -11,7 +11,7 @@
 .effect-wrapper img{
     display: block;
     position : absolute;
-    z-index: 0;
+    z-index: -3;
     opacity:  1.0;
 }
 

@@ -58,7 +58,7 @@ imageEffect.prototype = {
             if (option.items[i].classList) {
                 if (option.items[i].classList.contains('active')) {
                     option.items[i].classList.remove('active');
-                    option.items[i].style.zIndex = 10;
+                    option.items[i].style.zIndex = 0;
                     this.currentIndex = i;
                     this.prevIndex = (i - 1 < 0) ? 0 : i - 1;
                     this.nextIndex = (i + 1 < option.itemLength) ? i + 1 : 0;
@@ -189,7 +189,7 @@ imageEffect.prototype = {
     },
 
     resetValue: function () {
-        this.option.items[this.prevIndex].style.zIndex = 0;
+        this.option.items[this.prevIndex].style.zIndex = -3;
         this.option.items[this.prevIndex].style.opacity = 1.0;
         this.option.items[this.currentIndex].style.opacity = 1.0;
 
@@ -232,7 +232,7 @@ imageEffect.prototype = {
         this.layer.style.width = '100%';
         this.layer.style.height = '100vh';
         this.layer.style.position = 'absolute';
-        this.layer.style.zIndex = 5;
+        this.layer.style.zIndex = -2;
         this.layer.style.left = '0px';
         this.layer.style.top = '0px';
         this.layer.style.backgroundColor = 'black';
@@ -247,8 +247,8 @@ imageEffect.prototype = {
         if (playback === 0) {
             this.resetValue();
 
-            this.option.items[this.currentIndex].style.zIndex = 10;
-            this.option.items[this.nextIndex].style.zIndex = 9;
+            this.option.items[this.currentIndex].style.zIndex = 0;
+            this.option.items[this.nextIndex].style.zIndex = -1;
         }
         if (this.autoResize) {
             this.setScreenSize();
@@ -257,8 +257,8 @@ imageEffect.prototype = {
         }
 
         if (playback > 1.00) {
-            this.option.items[this.currentIndex].style.zIndex = 0;
-            this.option.items[this.nextIndex].style.zIndex = 10;
+            this.option.items[this.currentIndex].style.zIndex = -3;
+            this.option.items[this.nextIndex].style.zIndex = 0;
         }
     },
 
@@ -267,8 +267,8 @@ imageEffect.prototype = {
         if (playback === 0) {
             this.resetValue();
 
-            this.option.items[this.currentIndex].style.zIndex = 10;
-            this.option.items[this.nextIndex].style.zIndex = 9;
+            this.option.items[this.currentIndex].style.zIndex = 0;
+            this.option.items[this.nextIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.opacity = 1.0;
             return;
         }
@@ -286,8 +286,8 @@ imageEffect.prototype = {
         if (playback === 0) {
             this.resetValue();
 
-            this.option.items[this.currentIndex].style.zIndex = 9;
-            this.option.items[this.nextIndex].style.zIndex = 10;
+            this.option.items[this.currentIndex].style.zIndex = -1;
+            this.option.items[this.nextIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.opacity = 0.0;
             this.option.items[this.nextIndex].style.left = -this.option.items[this.nextIndex].width + 'px';
             return;
@@ -310,8 +310,8 @@ imageEffect.prototype = {
         if (playback === 0) {
             this.resetValue();
 
-            this.option.items[this.currentIndex].style.zIndex = 9;
-            this.option.items[this.nextIndex].style.zIndex = 10;
+            this.option.items[this.currentIndex].style.zIndex = -1;
+            this.option.items[this.nextIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.opacity = 0.0;
             this.option.items[this.nextIndex].style.left = this.option.items[this.nextIndex].width + 'px';
             return;
@@ -334,8 +334,8 @@ imageEffect.prototype = {
         if (playback === 0) {
             this.resetValue();
 
-            this.option.items[this.currentIndex].style.zIndex = 9;
-            this.option.items[this.nextIndex].style.zIndex = 10;
+            this.option.items[this.currentIndex].style.zIndex = -1;
+            this.option.items[this.nextIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.opacity = 0.0;
             this.option.items[this.nextIndex].style.top = -this.option.items[this.nextIndex].height + 'px';
             return;
@@ -358,8 +358,8 @@ imageEffect.prototype = {
         if (playback === 0) {
             this.resetValue();
 
-            this.option.items[this.currentIndex].style.zIndex = 9;
-            this.option.items[this.nextIndex].style.zIndex = 10;
+            this.option.items[this.currentIndex].style.zIndex = -1;
+            this.option.items[this.nextIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.opacity = 0.0;
             this.option.items[this.nextIndex].style.top = -this.option.items[this.nextIndex].height + 'px';
             return;
@@ -384,8 +384,8 @@ imageEffect.prototype = {
         if (playback === 0) {
             this.resetValue();
 
-            this.option.items[this.currentIndex].style.zIndex = 10;
-            this.option.items[this.nextIndex].style.zIndex = 9;
+            this.option.items[this.currentIndex].style.zIndex = 0;
+            this.option.items[this.nextIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.opacity = 1.0;
             return;
         }
@@ -410,8 +410,8 @@ imageEffect.prototype = {
         if (playback === 0) {
             this.resetValue();
 
-            this.option.items[this.currentIndex].style.zIndex = 9;
-            this.option.items[this.nextIndex].style.zIndex = 10;
+            this.option.items[this.currentIndex].style.zIndex = -1;
+            this.option.items[this.nextIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.opacity = 0.0;
             this.option.items[this.nextIndex].style.width = '0px';
             this.option.items[this.nextIndex].style.height = '0px';
@@ -433,8 +433,8 @@ imageEffect.prototype = {
         if (playback === 0) {
             this.resetValue();
 
-            this.option.items[this.currentIndex].style.zIndex = 10;
-            this.option.items[this.nextIndex].style.zIndex = 9;
+            this.option.items[this.currentIndex].style.zIndex = 0;
+            this.option.items[this.nextIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.opacity = 1.0;
             return;
         }
@@ -454,8 +454,8 @@ imageEffect.prototype = {
         if (playback === 0) {
             this.resetValue();
 
-            this.option.items[this.currentIndex].style.zIndex = 10;
-            this.option.items[this.nextIndex].style.zIndex = 9;
+            this.option.items[this.currentIndex].style.zIndex = 0;
+            this.option.items[this.nextIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.opacity = 1.0;
             return;
         }
@@ -484,8 +484,8 @@ imageEffect.prototype = {
         if (playback === 0) {
             this.resetValue();
 
-            this.option.items[this.currentIndex].style.zIndex = 9;
-            this.option.items[this.nextIndex].style.zIndex = 10;
+            this.option.items[this.currentIndex].style.zIndex = -1;
+            this.option.items[this.nextIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.opacity = 0.0;
             this.option.items[this.nextIndex].style.width = '0px';
             this.option.items[this.nextIndex].style.height = '0px';
@@ -511,8 +511,8 @@ imageEffect.prototype = {
         if (playback === 0) {
             this.resetValue();
 
-            this.option.items[this.currentIndex].style.zIndex = 10;
-            this.option.items[this.nextIndex].style.zIndex = 9;
+            this.option.items[this.currentIndex].style.zIndex = 0;
+            this.option.items[this.nextIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.opacity = 1.0;
             return;
         }
@@ -543,8 +543,8 @@ imageEffect.prototype = {
         if (playback === 0) {
             this.resetValue();
 
-            this.option.items[this.currentIndex].style.zIndex = 9;
-            this.option.items[this.nextIndex].style.zIndex = 10;
+            this.option.items[this.currentIndex].style.zIndex = -1;
+            this.option.items[this.nextIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.opacity = 1.0;
             this.option.items[this.nextIndex].style.top = height / 2.0 + 'px';
             this.option.items[this.nextIndex].style.left = width / 2.0 + 'px';
@@ -579,8 +579,8 @@ imageEffect.prototype = {
             if (this.option.items[this.nextIndex].style.width === '0px') return;
             this.resetValue();
 
-            this.option.items[this.currentIndex].style.zIndex = 9;
-            this.option.items[this.nextIndex].style.zIndex = 10;
+            this.option.items[this.currentIndex].style.zIndex = -1;
+            this.option.items[this.nextIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.opacity = 0.0;
             this.option.items[this.nextIndex].style.width = '0px';
             this.option.items[this.nextIndex].style.left = this.imageSize.width / 2.0 + 'px';
@@ -608,8 +608,8 @@ imageEffect.prototype = {
         if (playback === 0) {
             this.resetValue();
 
-            this.option.items[this.currentIndex].style.zIndex = 10;
-            this.option.items[this.nextIndex].style.zIndex = 9;
+            this.option.items[this.currentIndex].style.zIndex = 0;
+            this.option.items[this.nextIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.opacity = 1.0;
             return;
         }
@@ -635,8 +635,8 @@ imageEffect.prototype = {
         if (playback === 0) {
             this.resetValue();
 
-            this.option.items[this.currentIndex].style.zIndex = 10;
-            this.option.items[this.nextIndex].style.zIndex = 9;
+            this.option.items[this.currentIndex].style.zIndex = 0;
+            this.option.items[this.nextIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.opacity = 1.0;
             return;
         }
@@ -660,8 +660,8 @@ imageEffect.prototype = {
         if (playback === 0) {
             this.resetValue();
 
-            this.option.items[this.currentIndex].style.zIndex = 10;
-            this.option.items[this.nextIndex].style.zIndex = 9;
+            this.option.items[this.currentIndex].style.zIndex = 0;
+            this.option.items[this.nextIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.opacity = 1.0;
             return;
         }
@@ -687,8 +687,8 @@ imageEffect.prototype = {
         if (playback === 0) {
             this.resetValue();
 
-            this.option.items[this.currentIndex].style.zIndex = 10;
-            this.option.items[this.nextIndex].style.zIndex = 9;
+            this.option.items[this.currentIndex].style.zIndex = 0;
+            this.option.items[this.nextIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.opacity = 1.0;
             return;
         }
@@ -712,8 +712,8 @@ imageEffect.prototype = {
         if (playback === 0) {
             this.resetValue();
 
-            this.option.items[this.currentIndex].style.zIndex = 10;
-            this.option.items[this.nextIndex].style.zIndex = 9;
+            this.option.items[this.currentIndex].style.zIndex = 0;
+            this.option.items[this.nextIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.opacity = 1.0;
             return;
         }
@@ -740,8 +740,8 @@ imageEffect.prototype = {
         if (playback === 0) {
             this.resetValue();
 
-            this.option.items[this.currentIndex].style.zIndex = 10;
-            this.option.items[this.nextIndex].style.zIndex = 9;
+            this.option.items[this.currentIndex].style.zIndex = 0;
+            this.option.items[this.nextIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.opacity = 1.0;
             return;
         }
@@ -769,8 +769,8 @@ imageEffect.prototype = {
             if (this.option.items[this.nextIndex].style.height === '0px') return;
             this.resetValue();
 
-            this.option.items[this.currentIndex].style.zIndex = 9;
-            this.option.items[this.nextIndex].style.zIndex = 10;
+            this.option.items[this.currentIndex].style.zIndex = -1;
+            this.option.items[this.nextIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.opacity = 0.0;
             this.option.items[this.nextIndex].style.top = height / 2.0 + 'px';
             this.option.items[this.nextIndex].style.height = '0px';
@@ -822,8 +822,8 @@ imageEffect.prototype = {
         if (playback === 0) {
             this.resetValue();
 
-            this.option.items[this.currentIndex].style.zIndex = 9;
-            this.option.items[this.nextIndex].style.zIndex = 10;
+            this.option.items[this.currentIndex].style.zIndex = -1;
+            this.option.items[this.nextIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.opacity = 1.0;
             this.option.items[this.nextIndex].style.left = -this.option.items[this.nextIndex].width + 'px';
             return;
@@ -846,8 +846,8 @@ imageEffect.prototype = {
         if (playback === 0) {
             this.resetValue();
 
-            this.option.items[this.currentIndex].style.zIndex = 9;
-            this.option.items[this.nextIndex].style.zIndex = 10;
+            this.option.items[this.currentIndex].style.zIndex = -1;
+            this.option.items[this.nextIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.opacity = 1.0;
             this.option.items[this.nextIndex].style.left = this.option.items[this.nextIndex].width + 'px';
             return;
@@ -870,8 +870,8 @@ imageEffect.prototype = {
         if (playback === 0) {
             this.resetValue();
 
-            this.option.items[this.currentIndex].style.zIndex = 9;
-            this.option.items[this.nextIndex].style.zIndex = 10;
+            this.option.items[this.currentIndex].style.zIndex = -1;
+            this.option.items[this.nextIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.opacity = 1.0;
             this.option.items[this.nextIndex].style.top = -this.option.items[this.nextIndex].height + 'px';
             return;
@@ -894,8 +894,8 @@ imageEffect.prototype = {
         if (playback === 0) {
             this.resetValue();
 
-            this.option.items[this.currentIndex].style.zIndex = 9;
-            this.option.items[this.nextIndex].style.zIndex = 10;
+            this.option.items[this.currentIndex].style.zIndex = -1;
+            this.option.items[this.nextIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.opacity = 1.0;
             this.option.items[this.nextIndex].style.top = -this.option.items[this.nextIndex].height + 'px';
             return;
@@ -919,8 +919,8 @@ imageEffect.prototype = {
         if (playback === 0) {
             this.resetValue();
 
-            this.option.items[this.currentIndex].style.zIndex = 10;
-            this.option.items[this.nextIndex].style.zIndex = 9;
+            this.option.items[this.currentIndex].style.zIndex = 0;
+            this.option.items[this.nextIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.opacity = 1.0;
             this.option.items[this.nextIndex].style.transform = 'rotateY(180deg)';
             this.option.items[this.nextIndex].style.msTransform = 'rotateY(180deg)';
@@ -941,8 +941,8 @@ imageEffect.prototype = {
         this.option.items[this.nextIndex].style.msTransform = 'rotateY(' + (180 - playback * 180) + 'deg)';
         this.option.items[this.nextIndex].style.webkittransform = 'rotateY(' + (180 - playback * 180) + 'deg)';
         if (playback > 0.500) {
-            this.option.items[this.currentIndex].style.zIndex = 9;
-            this.option.items[this.nextIndex].style.zIndex = 10;
+            this.option.items[this.currentIndex].style.zIndex = -1;
+            this.option.items[this.nextIndex].style.zIndex = 0;
         }
 
         if (playback === 1) {
@@ -956,8 +956,8 @@ imageEffect.prototype = {
         if (playback === 0) {
             this.resetValue();
 
-            this.option.items[this.currentIndex].style.zIndex = 10;
-            this.option.items[this.nextIndex].style.zIndex = 9;
+            this.option.items[this.currentIndex].style.zIndex = 0;
+            this.option.items[this.nextIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.opacity = 1.0;
             this.option.items[this.nextIndex].style.transform = 'rotateX(180deg)';
             this.option.items[this.nextIndex].style.msTransform = 'rotateX(180deg)';
@@ -978,8 +978,8 @@ imageEffect.prototype = {
         this.option.items[this.nextIndex].style.msTransform = 'rotateX(' + (180 - playback * 180) + 'deg)';
         this.option.items[this.nextIndex].style.webkittransform = 'rotateX(' + (180 - playback * 180) + 'deg)';
         if (playback > 0.500) {
-            this.option.items[this.currentIndex].style.zIndex = 9;
-            this.option.items[this.nextIndex].style.zIndex = 10;
+            this.option.items[this.currentIndex].style.zIndex = -1;
+            this.option.items[this.nextIndex].style.zIndex = 0;
         }
 
         if (playback === 1) {
@@ -996,8 +996,8 @@ imageEffect.prototype = {
         if (playback === 0) {
             this.resetValue();
 
-            this.option.items[this.currentIndex].style.zIndex = 10;
-            this.option.items[this.nextIndex].style.zIndex = 9;
+            this.option.items[this.currentIndex].style.zIndex = 0;
+            this.option.items[this.nextIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.opacity = 1.0;
             return;
         }
@@ -1028,8 +1028,8 @@ imageEffect.prototype = {
      if(playback === 0){
      this.resetValue();
 
-     this.option.items[this.currentIndex].style.zIndex = 10;
-     this.option.items[this.nextIndex].style.zIndex = 9;
+     this.option.items[this.currentIndex].style.zIndex = 0;
+     this.option.items[this.nextIndex].style.zIndex = -1;
      this.option.items[this.nextIndex].style.opacity = 1.0;
      this.option.items[this.nextIndex].style.top = '0px';
      this.option.items[this.nextIndex].style.left = '0px';
