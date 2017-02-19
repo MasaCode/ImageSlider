@@ -14,3 +14,36 @@
     z-index: -3;
     opacity:  1.0;
 }
+
+.effect-wrapper img.active{
+    z-index: 10;
+    opacity: 1.0;
+}
+
+.effect-wrapper *{
+    position: absolute;
+}
+
+#layer1{
+    width : 100%;
+    height: 100%;
+}
+
+.layer-title{
+    display: block;
+    z-index: 1;
+    opacity: 1.0;
+    left: 45%;
+    top: 20%;
+}
+
+.layer-text1{
+    display: block;
+    word-break: break-all;
+    z-index: 1;
+    opacity: 1.0;
+    top: 30%;
+    left:40%;
+    width: 300px;
+}
+
