@@ -273,7 +273,6 @@ ImageEffect.prototype = {
                 this.prevIndex = this.currentIndex;
                 this.currentIndex = this.nextIndex;
                 this.nextIndex = this.imageOrder[tempIndex];
-                this.timeoutId = setTimeout(this.start.bind(this), this.option.showTime[this.timeIndex]);
 
                 for (var i in this.textElements) {
                     if (this.textElements[i].imageIndex === this.currentIndex) {
@@ -304,7 +303,6 @@ ImageEffect.prototype = {
 
     wait: function () {
         this.timeoutId = setTimeout(this.start.bind(this), this.option.showTime[this.timeIndex]);
-        if (this.autoResize) this.resizeIntervalId = setInterval(this.onResize.bind(this), 100);
     },
 
     onResize: function () {
