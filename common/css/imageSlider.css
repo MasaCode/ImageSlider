@@ -14,8 +14,3 @@
     z-index: -3;
     opacity:  1.0;
 }
-
-.effect-wrapper img.active{
-    z-index: 10;
-    opacity: 1.0;
-}

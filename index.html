@@ -15,7 +15,7 @@
 
 <body onload="onLoadFunction()">
     <div id="test" class="effect-wrapper">
-        <img class="active" src="common/images/sky01.jpg">
+        <img src="common/images/sky01.jpg">
         <img src="common/images/sky02.jpg">
         <img src="common/images/sky03.jpg">
         <img src="common/images/sky05.jpg">
@@ -32,6 +32,7 @@
                 step         : 1,
                 acceleration : 1,
                 autoResize   : true,
+                imageOrder   : [1, 0, 1, 2, null],
                 func         : ['shutfadein', 'fadeintocenter'],
             });
         }
