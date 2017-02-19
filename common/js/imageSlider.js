@@ -121,13 +121,14 @@ imageEffect.prototype = {
         if (this.startedAt > 1.0) {
             this.timeIndex = this.timeIndex + 1 < this.option.timeLength ? this.timeIndex + 1 : 0;
             this.currentOrderIndex = this.currentOrderIndex + 1 < this.orderLength ? this.currentOrderIndex + 1 : 0;
-            this.prevIndex = this.currentIndex;
-            this.currentIndex = this.nextIndex;
-            this.nextIndex = this.currentOrderIndex + 1 < this.orderLength ? this.imageOrder[this.currentOrderIndex + 1] : this.imageOrder[0];
             this.funcIndex = (this.funcIndex + 1 < this.option.func.length) ? this.funcIndex + 1 : 0;
             clearInterval(this.intervalId);
             if (this.autoResize) this.resizeIntervalId = setInterval(this.onResize.bind(this), 100);
-            if(this.nextIndex !== null){
+            var tempIndex = this.currentOrderIndex + 1 < this.orderLength ? this.currentOrderIndex + 1 : 0;
+            if(this.imageOrder[tempIndex] !== null){
+                this.prevIndex = this.currentIndex;
+                this.currentIndex = this.nextIndex;
+                this.nextIndex = this.imageOrder[tempIndex];
                 this.timeoutId = setTimeout(this.start.bind(this), this.option.showTime[this.timeIndex]);
             }
         }
