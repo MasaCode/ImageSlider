@@ -17,6 +17,9 @@ imageEffect.prototype = {
     nextIndex: 0,
     timeoutId: 0,
     intervalId: 0,
+    imageOrder: [],
+    orderLength: null,
+    currentOrderIndex: 0,
     resizeIntervalId: 0,
     canvas: null,
     canvasContext: null,
@@ -53,20 +56,21 @@ imageEffect.prototype = {
         option.itemLength = option.items.length;
         this.acceleration = option.acceleration || 1;
         this.autoResize = (typeof option.autoResize !== 'boolean') ? true : option.autoResize;
-
-        for (var i = 0; i < option.itemLength; i++) {
-            if (option.items[i].classList) {
-                if (option.items[i].classList.contains('active')) {
-                    option.items[i].classList.remove('active');
-                    option.items[i].style.zIndex = 0;
-                    this.currentIndex = i;
-                    this.prevIndex = (i - 1 < 0) ? 0 : i - 1;
-                    this.nextIndex = (i + 1 < option.itemLength) ? i + 1 : 0;
-                    break;
-                }
-            }
-        }
         this.changeInterval = (option.interval * (1 / option.step));
+
+        if (!option.imageOrder || !Array.isArray(option.imageOrder)) {
+            for (var i = 0; i < option.itemLength; i++) {
+                this.imageOrder[i] = i;
+            }
+        } else {
+            this.imageOrder = option.imageOrder;
+        }
+        this.orderLength = this.imageOrder.length;
+        this.currentOrderIndex = 0;
+        this.currentIndex = this.imageOrder[0];
+        this.prevIndex = this.imageOrder[this.orderLength - 1];
+        this.nextIndex = 1 < this.orderLength ? this.imageOrder[1] : this.imageOrder[0];
+        option.items[this.currentIndex].style.zIndex = 0;
 
         if (!Array.isArray(option.func)) {
             option.func = [option.func];
@@ -79,29 +83,26 @@ imageEffect.prototype = {
                 break;
             }
         }
-        if (isValid) {
-            this.option = option;
-            this.createCanvas();
-            this.createLayer();
-            this[this.option.func[this.funcIndex]](0);
-            this.timeoutId = setTimeout(this.start.bind(this), this.option.showTime[this.timeIndex] - this.changeInterval);
-            if (this.autoResize) {
-                this.resizeIntervalId = setInterval(this.onResize.bind(this), 100);
-            } else {
-                // setting window onresize event to execute onResize function.
-                var timer = false;
-                var _self = this;
-                window.onresize = function () {
-                    if (timer !== false) {
-                        clearTimeout(timer);
-                    }
-                    timer = setTimeout(function () {
-                        _self.onResize();
-                    }, 100);
-                };
-            }
-        } else {
+
+        if(this.orderLength === 1){
+            console.log('Error : Invalid image order...Please Enter more than 1');
+            return null;
+        }
+        if (!isValid) {
             console.log('Error : Invalid function name');
+            return null;
+        }
+
+        this.option = option;
+        this.createCanvas();
+        this.createLayer();
+        this[this.option.func[this.funcIndex]](0);
+        this.timeoutId = setTimeout(this.start.bind(this), this.option.showTime[this.timeIndex] - this.changeInterval);
+        if (this.autoResize) {
+            this.resizeIntervalId = setInterval(this.onResize.bind(this), 100);
+        } else {
+            // setting window onresize event to execute onResize function.
+            this.setResizeEvent();
         }
     },
 
@@ -119,14 +120,30 @@ imageEffect.prototype = {
 
         if (this.startedAt > 1.0) {
             this.timeIndex = this.timeIndex + 1 < this.option.timeLength ? this.timeIndex + 1 : 0;
+            this.currentOrderIndex = this.currentOrderIndex + 1 < this.orderLength ? this.currentOrderIndex + 1 : 0;
             this.prevIndex = this.currentIndex;
             this.currentIndex = this.nextIndex;
-            this.nextIndex = this.nextIndex + 1 < this.option.itemLength ? this.nextIndex + 1 : 0;
+            this.nextIndex = this.currentOrderIndex + 1 < this.orderLength ? this.imageOrder[this.currentOrderIndex + 1] : this.imageOrder[0];
             this.funcIndex = (this.funcIndex + 1 < this.option.func.length) ? this.funcIndex + 1 : 0;
             clearInterval(this.intervalId);
-            this.timeoutId = setTimeout(this.start.bind(this), this.option.showTime[this.timeIndex]);
             if (this.autoResize) this.resizeIntervalId = setInterval(this.onResize.bind(this), 100);
+            if(this.nextIndex !== null){
+                this.timeoutId = setTimeout(this.start.bind(this), this.option.showTime[this.timeIndex]);
+            }
         }
+    },
+
+    setResizeEvent: function () {
+        var timer = false;
+        var _self = this;
+        window.onresize = function () {
+            if (timer !== false) {
+                clearTimeout(timer);
+            }
+            timer = setTimeout(function () {
+                _self.onResize();
+            }, 100);
+        };
     },
 
     onResize: function () {
@@ -170,7 +187,6 @@ imageEffect.prototype = {
             image.style.top = top + 'px';
             image.style.left = left + 'px';
         }
-        //console.log(parseFloat(image.style.top.replace('px', '')));
         return {width: imageWidth, height: imageHeight};
     },
 
@@ -189,8 +205,10 @@ imageEffect.prototype = {
     },
 
     resetValue: function () {
-        this.option.items[this.prevIndex].style.zIndex = -3;
-        this.option.items[this.prevIndex].style.opacity = 1.0;
+        if(this.prevIndex !== null) {
+            this.option.items[this.prevIndex].style.zIndex = -3;
+            this.option.items[this.prevIndex].style.opacity = 1.0;
+        }
         this.option.items[this.currentIndex].style.opacity = 1.0;
 
         this.setScreenSize();
