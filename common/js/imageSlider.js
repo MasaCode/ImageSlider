@@ -82,7 +82,7 @@ ElementEffects.prototype = {
         this.isEffectInitialized = false;
     },
 
-    hide: function () {
+    reset: function () {
         if(this.intervalId !== 0){
             clearInterval(this.intervalId);
         }
