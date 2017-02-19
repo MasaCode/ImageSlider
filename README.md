@@ -54,7 +54,7 @@ step : 1
 ```
 **Acceleration** Variable to change interval at runtime
 ```javascript
-acceleration : 1 (default)
+acceleration : null (default, 1.0)
 acceleration : 0.5
 acceleration : 1.5
 ```
@@ -63,8 +63,14 @@ acceleration : 1.5
 autoResize : true
 autoResize : false
 ```
+**ImageOrder** array of number that decide order of showing images
+```javascript
+imageOrder : [0, 1, 4, 3]
+imageOrder : null, (default, show by listed order)
+imageOrder : [0, 1, 3, null] (stop after image 3)
+```
 **Func** Name of effect function
 ```javascript
 func : 'fadeIn'
-func : ['fadeIn, 'modalin']
+func : ['fadeIn', 'modalIn']
 ```
