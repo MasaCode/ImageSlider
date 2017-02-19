@@ -1,11 +1,11 @@
 'use strict';
 
-function imageEffect(option) {
+function ImageSlider(option) {
     this.initialize(option);
     return this;
 }
 
-imageEffect.prototype = {
+ImageSlider.prototype = {
     option: null,
     startedAt: null,
     changeInterval: 0,
