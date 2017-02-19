@@ -1,11 +1,133 @@
 'use strict';
 
-function ImageSlider(option) {
+function ElementEffects(option) {
     this.initialize(option);
     return this;
 }
 
-ImageSlider.prototype = {
+ElementEffects.prototype = {
+    elements: [],
+    option: null,
+    callback: null,
+    elementLength: 0,
+    imageIndex: 0,
+    effectLength : 0,
+    step : 0.01,
+    interval : 15.0,
+    intervalId : 0,
+    effectFunc : null,
+    isAllTogether : true,
+    startedAt : 0,
+    layerIndex : 0,
+    isEffectInitialized : false,
+
+    initialize: function (option) {
+        this.option = option;
+        this.imageIndex = option.imageIndex;
+        var wrapper = document.querySelector(option.selector);
+        this.elementLength = wrapper.childElementCount;
+        this.isAllTogether = (typeof option.isAllTogether === "boolean") ? option.isAllTogether : true;
+        this.effectLength = this.interval * (1 / this.step);
+        for (var i = 0; i < this.elementLength; i++) {
+            var obj = {};
+            obj.node = wrapper.children[i];
+            obj.width = obj.node.offsetWidth;
+            obj.height = obj.node.offsetHeight;
+            obj.initPos = this.getPosition(obj.node);
+            this.elements.push(obj);
+            wrapper.children[i].style.opacity = 0.0;
+        }
+        if(typeof this[option.func] === 'function'){
+            this.effectFunc = option.func;
+        }else{
+            this.effectFunc = 'fadein';
+        }
+    },
+
+    getPosition: function (element) {
+        var x = 0, y = 0;
+        var width = window.innerWidth;
+        var height = window.innerHeight;
+        while(element){
+            if(element.tagName == 'BODY'){
+                var xScroll = element.scrollLeft || document.documentElement.scrollLeft;
+                var yScroll = element.scrollTop || document.documentElement.scrollTop;
+                x += (element.offsetLeft - xScroll + element.clientLeft);
+                y += (element.offsetTop - yScroll + element.clientTop);
+            }else{
+                x += (element.offsetLeft - element.scrollLeft + element.clientLeft);
+                y += (element.offsetTop - element.scrollTop + element.clientTop);
+            }
+            element = element.offsetParent;
+        }
+        x = (x / width) * 100.00;
+        y = (y / height) * 100.00;
+
+        return {x : x, y : y};
+    },
+
+    start: function (callback) {
+        this.startedAt = 0;
+        this.layerIndex = 0;
+        this.callback = callback;
+        this.intervalId = setInterval(this.update.bind(this), this.interval);
+    },
+
+    stop: function () {
+        if(typeof this.callback === 'function') {
+            this.callback();
+        }
+        clearInterval(this.intervalId);
+        this.intervalId = 0;
+        this.isEffectInitialized = false;
+    },
+
+    hide: function () {
+        if(this.intervalId !== 0){
+            clearInterval(this.intervalId);
+        }
+        for(var i = 0; i < this.elementLength; i++){
+            this.elements[i].node.style.opacity = 0.0;
+        }
+        this.callback = null;
+    },
+
+    update : function () {
+        this.startedAt += (this.interval / this.effectLength);
+        if(this.isAllTogether){
+            for(var i = 0; i < this.elementLength; i++){
+                this[this.effectFunc](this.startedAt, i);
+            }
+        }else{
+            this[this.effectFunc](this.startedAt, this.layerIndex);
+        }
+        this.isEffectInitialized = true;
+
+        if(this.startedAt > 1.0){
+            this.layerIndex++;
+            if(this.isAllTogether || (this.layerIndex >= this.elementLength)){
+                this.stop();
+            }else{
+                this.startedAt = 0;
+                this.isEffectInitialized = false;
+            }
+        }
+    },
+
+    fadein: function (playback, elementIndex) {
+        if(!this.isEffectInitialized){
+            this.elements[elementIndex].node.style.opacity = 0.0;
+        }
+        this.elements[elementIndex].node.style.opacity = playback;
+    },
+};
+
+function ImageEffect(option) {
+    this.initialize(option);
+    return this;
+}
+
+ImageEffect.prototype = {
     option: null,
     startedAt: null,
     changeInterval: 0,
