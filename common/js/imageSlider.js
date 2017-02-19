@@ -165,7 +165,7 @@ ImageSlider.prototype = {
         this.scaleToFit(this.option.items[this.nextIndex]);
     },
 
-    scaleToFit: function (image, canSetPosition) {
+    scaleToFit: function (image, canSetPosition, canSetWidth, canSetHeight) {
         var rasio = 0;
         var imageWidth;
         var imageHeight;
@@ -181,8 +181,14 @@ ImageSlider.prototype = {
             imageHeight = rasio * imageHeight;
         }
 
-        image.width = imageWidth.toString();
-        image.height = imageHeight.toString();
+        if(canSetWidth !== false) {
+            image.width = imageWidth.toString();
+            image.style.width = imageWidth.toString() + 'px';
+        }
+        if(canSetHeight !== false) {
+            image.height = imageHeight.toString();
+            image.style.height = imageHeight.toString() + 'px';
+        }
 
         if (canSetPosition !== false) {
             top = (this.currentScreen.height - imageHeight) / 2.0;
