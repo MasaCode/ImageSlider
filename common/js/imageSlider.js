@@ -122,6 +122,8 @@ imageEffect.prototype = {
             this.timeIndex = this.timeIndex + 1 < this.option.timeLength ? this.timeIndex + 1 : 0;
             this.currentOrderIndex = this.currentOrderIndex + 1 < this.orderLength ? this.currentOrderIndex + 1 : 0;
             this.funcIndex = (this.funcIndex + 1 < this.option.func.length) ? this.funcIndex + 1 : 0;
+            this.option.items[this.currentIndex].style.zIndex = -3;
+            this.option.items[this.nextIndex].style.zIndex = 0;
             clearInterval(this.intervalId);
             if (this.autoResize) this.resizeIntervalId = setInterval(this.onResize.bind(this), 100);
             var tempIndex = this.currentOrderIndex + 1 < this.orderLength ? this.currentOrderIndex + 1 : 0;
@@ -207,7 +209,6 @@ imageEffect.prototype = {
 
     resetValue: function () {
         if(this.prevIndex !== null) {
-            this.option.items[this.prevIndex].style.zIndex = -3;
             this.option.items[this.prevIndex].style.opacity = 1.0;
         }
         this.option.items[this.currentIndex].style.opacity = 1.0;
