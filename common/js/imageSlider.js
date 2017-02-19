@@ -160,6 +160,8 @@ ImageEffect.prototype = {
     },
     canChnageSize: true,
     autoResize: true,
+    textElements : [],
+    currentTextElement : null,
 
     initialize: function (option) {
         if (!option.selector) return null;
@@ -194,6 +196,17 @@ ImageEffect.prototype = {
         this.nextIndex = 1 < this.orderLength ? this.imageOrder[1] : this.imageOrder[0];
         option.items[this.currentIndex].style.zIndex = 0;
 
+        // Creating Text layer's instances
+        if(Array.isArray(option.textLayers)) {
+            for (var j in option.textLayers) {
+                var element = new ElementEffects(option.textLayers[j]);
+                if(element.imageIndex === 0){
+                    this.currentTextElement = element;
+                }
+                this.textElements.push(element);
+            }
+        }
+
         if (!Array.isArray(option.func)) {
             option.func = [option.func];
         }
@@ -220,6 +233,9 @@ ImageEffect.prototype = {
         this.createLayer();
         this[this.option.func[this.funcIndex]](0);
         this.timeoutId = setTimeout(this.start.bind(this), this.option.showTime[this.timeIndex] - this.changeInterval);
+        if(this.currentTextElement){
+            this.currentTextElement.start(null);
+        }
         if (this.autoResize) {
             this.resizeIntervalId = setInterval(this.onResize.bind(this), 100);
         } else {
@@ -233,6 +249,10 @@ ImageEffect.prototype = {
         if (this.autoResize) clearInterval(this.resizeIntervalId);
         this[this.option.func[this.funcIndex]](0);
         this.intervalId = setInterval(this.update.bind(this), this.option.interval);
+        if(this.currentTextElement){
+            this.currentTextElement.reset();
+            this.currentTextElement = null;
+        }
     },
 
     update: function () {
@@ -249,11 +269,22 @@ ImageEffect.prototype = {
             clearInterval(this.intervalId);
             if (this.autoResize) this.resizeIntervalId = setInterval(this.onResize.bind(this), 100);
             var tempIndex = this.currentOrderIndex + 1 < this.orderLength ? this.currentOrderIndex + 1 : 0;
-            if(this.imageOrder[tempIndex] !== null){
+            if(this.imageOrder[tempIndex] !== null) {
                 this.prevIndex = this.currentIndex;
                 this.currentIndex = this.nextIndex;
                 this.nextIndex = this.imageOrder[tempIndex];
                 this.timeoutId = setTimeout(this.start.bind(this), this.option.showTime[this.timeIndex]);
+
+                for (var i in this.textElements) {
+                    if (this.textElements[i].imageIndex === this.currentIndex) {
+                        this.currentTextElement = this.textElements[i];
+                    }
+                }
+                if (this.currentTextElement === null) {
+                    this.wait();
+                } else {
+                    this.currentTextElement.start(this.wait.bind(this));
+                }
             }
         }
     },
@@ -269,6 +300,11 @@ ImageEffect.prototype = {
                 _self.onResize();
             }, 100);
         };
+    },
+
+    wait: function () {
+        this.timeoutId = setTimeout(this.start.bind(this), this.option.showTime[this.timeIndex]);
+        if (this.autoResize) this.resizeIntervalId = setInterval(this.onResize.bind(this), 100);
     },
 
     onResize: function () {
@@ -305,6 +341,8 @@ ImageEffect.prototype = {
 
         image.width = imageWidth.toString();
         image.height = imageHeight.toString();
+        image.style.width = imageWidth.toString() + 'px';
+        image.style.height = imageHeight.toString() + 'px';
 
         if (canSetPosition !== false) {
             top = (this.currentScreen.height - imageHeight) / 2.0;
