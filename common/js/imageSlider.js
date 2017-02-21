@@ -165,7 +165,7 @@ ImageSlider.prototype = {
         this.scaleToFit(this.option.items[this.nextIndex]);
     },
 
-    scaleToFit: function (image, canSetPosition, canSetWidth, canSetHeight) {
+    scaleToFit: function (image, canSetPosition, canSetSize) {
         var rasio = 0;
         var imageWidth;
         var imageHeight;
@@ -181,11 +181,9 @@ ImageSlider.prototype = {
             imageHeight = rasio * imageHeight;
         }
 
-        if(canSetWidth !== false) {
+        if(canSetSize !== false) {
             image.width = imageWidth.toString();
             image.style.width = imageWidth.toString() + 'px';
-        }
-        if(canSetHeight !== false) {
             image.height = imageHeight.toString();
             image.style.height = imageHeight.toString() + 'px';
         }
@@ -262,7 +260,7 @@ ImageSlider.prototype = {
         this.layer.style.left = '0px';
         this.layer.style.top = '0px';
         this.layer.style.backgroundColor = 'black';
-        this.layer.style.opacity = 0.9;
+        this.layer.style.opacity = 1.0;
     },
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -329,6 +327,7 @@ ImageSlider.prototype = {
         var diff = (this.imageSize.width - window.innerWidth) / 2.0;
         var left = (1 - playback) * -this.imageSize.width - diff;
         this.option.items[this.nextIndex].style.left = left + 'px';
+        this.option.items[this.nextIndex].style.top = this.option.items[this.currentIndex].style.top;
         this.option.items[this.nextIndex].style.opacity = playback;
     },
 
@@ -353,6 +352,7 @@ ImageSlider.prototype = {
         var diff = (this.imageSize.width - window.innerWidth) / 2.0;
         var left = (1 - playback) * this.option.imageSize.width - diff;
         this.option.items[this.nextIndex].style.left = left + 'px';
+        this.option.items[this.nextIndex].style.top = this.option.items[this.currentIndex].style.top;
         this.option.items[this.nextIndex].style.opacity = playback;
     },
 
@@ -377,6 +377,7 @@ ImageSlider.prototype = {
         var diff = (this.imageSize.height - window.innerHeight) / 2.0;
         var top = (1 - playback) * -(this.imageSize.height) - diff;
         this.option.items[this.nextIndex].style.top = top + 'px';
+        this.option.items[this.nextIndex].style.left = this.option.items[this.currentIndex].style.left;
         this.option.items[this.nextIndex].style.opacity = playback;
     },
 
@@ -401,6 +402,7 @@ ImageSlider.prototype = {
         var diff = (this.imageSize.height - window.innerHeight) / 2.0;
         var top = (1 - playback) * this.imageSize.height - diff;
         this.option.items[this.nextIndex].style.top = top + 'px';
+        this.option.items[this.nextIndex].style.left = this.option.items[this.currentIndex].style.left;
         this.option.items[this.nextIndex].style.opacity = playback;
     },
 
@@ -453,6 +455,8 @@ ImageSlider.prototype = {
         this.option.items[this.nextIndex].style.opacity = playback;
         this.option.items[this.nextIndex].style.width = playback * this.imageSize.width + 'px';
         this.option.items[this.nextIndex].style.height = playback * this.imageSize.height + 'px';
+        this.option.items[this.nextIndex].style.left = this.option.items[this.currentIndex].style.left;
+        this.option.items[this.nextIndex].style.top = this.option.items[this.currentIndex].style.top;
     },
 
     rotatefadeout: function (playback) {
@@ -529,6 +533,8 @@ ImageSlider.prototype = {
         this.option.items[this.nextIndex].style.webkittransform = 'rotate(' + playback * 360 + 'deg)';
         this.option.items[this.nextIndex].style.width = playback * this.imageSize.width + 'px';
         this.option.items[this.nextIndex].style.height = playback * this.imageSize.height + 'px';
+        this.option.items[this.nextIndex].style.left = this.option.items[this.currentIndex].style.left;
+        this.option.items[this.nextIndex].style.top = this.option.items[this.currentIndex].style.top;
     },
 
     fadeintocenter: function (playback) {
@@ -590,8 +596,8 @@ ImageSlider.prototype = {
         this.option.items[this.nextIndex].style.opacity = playback;
         this.option.items[this.nextIndex].style.width = playback * this.imageSize.width + 'px';
         this.option.items[this.nextIndex].style.height = playback * this.imageSize.height + 'px';
-        this.option.items[this.nextIndex].style.left = ((1 - playback) * width / 2.0 - (playback) * diffX) + 'px';
-        this.option.items[this.nextIndex].style.top = ((1 - playback) * height / 2.0 - (playback) * diffY) + 'px';
+        this.option.items[this.nextIndex].style.left = ((1 - playback) * this.imageSize.width / 2.0 - (playback) * diffX) + 'px';
+        this.option.items[this.nextIndex].style.top = ((1 - playback) * this.imageSize.height / 2.0 - (playback) * diffY) + 'px';
 
         if (playback === 1) {
             this.option.items[this.nextIndex].style.width = this.imageSize.width + 'px';
@@ -623,6 +629,8 @@ ImageSlider.prototype = {
         this.option.items[this.nextIndex].style.opacity = playback;
         this.option.items[this.nextIndex].style.left = ((1 - playback) * width / 2.0 - diff) + 'px';
         this.option.items[this.nextIndex].style.width = playback * this.imageSize.width + 'px';
+        this.option.items[this.nextIndex].style.height = this.imageSize.height + 'px';
+        this.option.items[this.nextIndex].style.top = this.option.items[this.currentIndex].style.top;
 
         if (playback === 1) {
             this.option.items[this.nextIndex].style.width = this.imageSize.width + 'px';
@@ -650,7 +658,9 @@ ImageSlider.prototype = {
         var diff = (this.imageSize.width - width) / 2.0;
         this.option.items[this.currentIndex].style.opacity = range;
         this.option.items[this.currentIndex].style.width = range * this.imageSize.width + 'px';
+        this.option.items[this.currentIndex].style.height = this.imageSize.height + 'px';
         this.option.items[this.currentIndex].style.left = (playback * this.imageSize.width / 2.0 - (1 - playback) * diff) + 'px';
+        this.option.items[this.currentIndex].style.top = this.option.items[this.nextIndex].style.top;
 
         if (playback === 1) {
             this.option.items[this.currentIndex].style.width = this.imageSize.width + 'px';
@@ -676,6 +686,9 @@ ImageSlider.prototype = {
         var range = 1 - playback;
         this.option.items[this.currentIndex].style.opacity = range;
         this.option.items[this.currentIndex].style.width = range * this.imageSize.width + 'px';
+        this.option.items[this.currentIndex].style.top = this.option.items[this.nextIndex].style.top;
+        this.option.items[this.currentIndex].style.left = this.option.items[this.nextIndex].style.left;
+        this.option.items[this.currentIndex].style.height = this.imageSize.height + 'px';
 
         if (playback === 1) {
             this.option.items[this.currentIndex].style.width = this.imageSize.width + 'px';
@@ -701,8 +714,10 @@ ImageSlider.prototype = {
         var range = 1 - playback;
         var diff = (this.imageSize.width - window.innerWidth) / 2.0;
         this.option.items[this.currentIndex].style.opacity = range;
+        this.option.items[this.currentIndex].style.top = this.option.items[this.nextIndex].style.top;
         this.option.items[this.currentIndex].style.left = (playback * this.imageSize.width - diff) + 'px';
         this.option.items[this.currentIndex].style.width = range * this.imageSize.width + 'px';
+        this.option.items[this.currentIndex].style.height = this.imageSize.height + 'px';
 
         if (playback === 1) {
             this.option.items[this.currentIndex].style.width = this.imageSize.width + 'px';
@@ -728,6 +743,9 @@ ImageSlider.prototype = {
         var range = 1 - playback;
         this.option.items[this.currentIndex].style.opacity = range;
         this.option.items[this.currentIndex].style.height = range * this.imageSize.height + 'px';
+        this.option.items[this.currentIndex].style.width = this.imageSize.width + 'px';
+        this.option.items[this.currentIndex].style.left = this.option.items[this.nextIndex].style.left;
+        this.option.items[this.currentIndex].style.top = this.option.items[this.nextIndex].style.top;
 
         if (playback === 1) {
             this.option.items[this.currentIndex].style.height = this.imageSize.height + 'px';
@@ -754,7 +772,9 @@ ImageSlider.prototype = {
         var diff = (this.imageSize.height - window.innerHeight) / 2.0;
         this.option.items[this.currentIndex].style.opacity = range;
         this.option.items[this.currentIndex].style.top = (playback * this.imageSize.height - diff) + 'px';
+        this.option.items[this.currentIndex].style.left = this.option.items[this.nextIndex].style.left;
         this.option.items[this.currentIndex].style.height = range * this.imageSize.height + 'px';
+        this.option.items[this.currentIndex].style.width = this.imageSize.width + 'px';
 
         if (playback === 1) {
             this.option.items[this.currentIndex].style.height = this.imageSize.height + 'px';
@@ -782,7 +802,9 @@ ImageSlider.prototype = {
         var diff = (this.imageSize.height - height) / 2.0;
         this.option.items[this.currentIndex].style.opacity = range;
         this.option.items[this.currentIndex].style.height = range * this.imageSize.height + 'px';
+        this.option.items[this.currentIndex].style.width = this.imageSize.width + 'px';
         this.option.items[this.currentIndex].style.top = playback * height / 2.0 - (1 - playback) * diff + 'px';
+        this.option.items[this.currentIndex].style.left = this.option.items[this.nextIndex].style.left;
 
         if (playback === 1) {
             this.option.items[this.currentIndex].style.height = this.imageSize.height + 'px';
@@ -813,7 +835,9 @@ ImageSlider.prototype = {
         var diff = (this.imageSize.height - height) / 2.0;
         this.option.items[this.nextIndex].style.opacity = playback;
         this.option.items[this.nextIndex].style.height = playback * this.imageSize.height + 'px';
+        this.option.items[this.currentIndex].style.width = this.imageSize.width + 'px';
         this.option.items[this.nextIndex].style.top = range * height / 2.0 - (playback * diff) + 'px';
+        this.option.items[this.currentIndex].style.left = this.option.items[this.nextIndex].style.left;
 
         if (playback === 1) {
             this.option.items[this.nextIndex].style.height = this.imageSize.height + 'px';
@@ -956,7 +980,8 @@ ImageSlider.prototype = {
         if (this.autoResize) {
             this.setScreenSize();
             this.scaleToFit(this.option.items[this.currentIndex]);
-            this.scaleToFit(this.option.items[this.nextIndex]);
+            var size = this.scaleToFit(this.option.items[this.nextIndex]);
+            this.setImageSize(size);
         }
 
         if (playback > 1.00) playback = 1;
@@ -993,7 +1018,8 @@ ImageSlider.prototype = {
         if (this.autoResize) {
             this.setScreenSize();
             this.scaleToFit(this.option.items[this.currentIndex]);
-            this.scaleToFit(this.option.items[this.nextIndex]);
+            var size = this.scaleToFit(this.option.items[this.nextIndex]);
+            this.setImageSize(size);
         }
 
         if (playback > 1.00) playback = 1;
@@ -1037,9 +1063,9 @@ ImageSlider.prototype = {
         var diffX = (this.imageSize.width - width) / 2.0;
         var diffY = (this.imageSize.height - height) / 2.0;
         this.option.items[this.currentIndex].style.width = (playback + 1) * this.imageSize.width + 'px'
-        this.option.items[this.currentIndex].style.left = -(playback) * width / 2.0 - (1 - playback) * diffX + 'px';
+        this.option.items[this.currentIndex].style.left = -(playback) * this.imageSize.width / 2.0 - (1 - playback) * diffX + 'px';
         this.option.items[this.currentIndex].style.height = (playback + 1) * this.imageSize.height + 'px'
-        this.option.items[this.currentIndex].style.top = -(playback) * height / 2.0 - (1 - playback) * diffY + 'px';
+        this.option.items[this.currentIndex].style.top = -(playback) * this.imageSize.height / 2.0 - (1 - playback) * diffY + 'px';
         this.option.items[this.currentIndex].style.opacity = 1 - playback;
 
         if (playback === 1) {
