@@ -36,8 +36,13 @@ ImageSlider.prototype = {
         width: 0,
         height: 0,
     },
-    canChnageSize: true,
     autoResize: true,
+    resizeOption: {
+        canResizeCurrent : true,
+        canResizeNext : true,
+        canSetCurrentPos : true,
+        canSetNextPos : true
+    },
 
     initialize: function (option) {
         if (!option.selector) return null;
@@ -124,6 +129,7 @@ ImageSlider.prototype = {
             this.funcIndex = (this.funcIndex + 1 < this.option.func.length) ? this.funcIndex + 1 : 0;
             this.option.items[this.currentIndex].style.zIndex = -3;
             this.option.items[this.nextIndex].style.zIndex = 0;
+            this.setResizeOption();
             clearInterval(this.intervalId);
             if (this.autoResize) this.resizeIntervalId = setInterval(this.onResize.bind(this), 100);
             var tempIndex = this.currentOrderIndex + 1 < this.orderLength ? this.currentOrderIndex + 1 : 0;
@@ -145,13 +151,14 @@ ImageSlider.prototype = {
             }
             timer = setTimeout(function () {
                 _self.onResize();
-            }, 100);
+            }, 50);
         };
     },
 
     onResize: function () {
+        var size;
         this.setScreenSize();
-        if (this.currentScreen.width === this.previousScreen.width && this.currentScreen.height === this.previousScreen.height) {
+        if (this.currentScreen.width === this.previousScreen.width && this.currentScreen.height === this.previousScreen.height && this.autoResize) {
             return;
         }
         if (this.canvas) {
@@ -160,9 +167,16 @@ ImageSlider.prototype = {
             this.canvasContext = this.canvas.getContext('2d');
         }
 
-        if (!this.canChnageSize) return;
-        this.scaleToFit(this.option.items[this.currentIndex]);
-        this.scaleToFit(this.option.items[this.nextIndex]);
+        if(this.resizeOption.canResizeCurrent) {
+            size = this.scaleToFit(this.option.items[this.currentIndex], this.resizeOption.canSetCurrentPos);
+        }
+        if(this.resizeOption.canResizeNext) {
+            size = this.scaleToFit(this.option.items[this.nextIndex], this.resizeOption.canSetNextPos);
+        }
+
+        if(!this.autoResize){
+            this.setImageSize(size);
+        }
     },
 
     scaleToFit: function (image, canSetPosition, canSetSize) {
@@ -209,6 +223,13 @@ ImageSlider.prototype = {
 
         this.imageSize.width = imageSize.width;
         this.imageSize.height = imageSize.height;
+    },
+
+    setResizeOption: function () {
+      this.resizeOption.canResizeCurrent = true;
+      this.resizeOption.canResizeNext = true;
+      this.resizeOption.canSetCurrentPos = true;
+      this.resizeOption.canSetNextPos = true;
     },
 
     resetValue: function () {
@@ -314,6 +335,7 @@ ImageSlider.prototype = {
             this.option.items[this.nextIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.opacity = 0.0;
             this.option.items[this.nextIndex].style.left = -this.option.items[this.nextIndex].width + 'px';
+            this.resizeOption.canSetNextPos = false;
             return;
         }
         if (this.autoResize) {
@@ -339,6 +361,7 @@ ImageSlider.prototype = {
             this.option.items[this.nextIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.opacity = 0.0;
             this.option.items[this.nextIndex].style.left = this.option.items[this.nextIndex].width + 'px';
+            this.resizeOption.canSetNextPos = false;
             return;
         }
         if (this.autoResize) {
@@ -364,6 +387,7 @@ ImageSlider.prototype = {
             this.option.items[this.nextIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.opacity = 0.0;
             this.option.items[this.nextIndex].style.top = -this.option.items[this.nextIndex].height + 'px';
+            this.resizeOption.canSetNextPos = false;
             return;
         }
         if (this.autoResize) {
@@ -389,6 +413,7 @@ ImageSlider.prototype = {
             this.option.items[this.nextIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.opacity = 0.0;
             this.option.items[this.nextIndex].style.top = -this.option.items[this.nextIndex].height + 'px';
+            this.resizeOption.canSetNextPos = false;
             return;
         }
         if (this.autoResize) {
@@ -415,6 +440,7 @@ ImageSlider.prototype = {
             this.option.items[this.currentIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.opacity = 1.0;
+            this.resizeOption.canResizeCurrent = false;
             return;
         }
         if (this.autoResize) {
@@ -443,6 +469,7 @@ ImageSlider.prototype = {
             this.option.items[this.nextIndex].style.opacity = 0.0;
             this.option.items[this.nextIndex].style.width = '0px';
             this.option.items[this.nextIndex].style.height = '0px';
+            this.resizeOption.canResizeNext = false;
             return;
         }
         if (this.autoResize) {
@@ -487,6 +514,7 @@ ImageSlider.prototype = {
             this.option.items[this.currentIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.opacity = 1.0;
+            this.resizeOption.canResizeCurrent = false;
             return;
         }
         if (this.autoResize) {
@@ -519,6 +547,7 @@ ImageSlider.prototype = {
             this.option.items[this.nextIndex].style.opacity = 0.0;
             this.option.items[this.nextIndex].style.width = '0px';
             this.option.items[this.nextIndex].style.height = '0px';
+            this.resizeOption.canResizeNext = false;
             return;
         }
         if (this.autoResize) {
@@ -546,6 +575,7 @@ ImageSlider.prototype = {
             this.option.items[this.currentIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.opacity = 1.0;
+            this.resizeOption.canResizeCurrent = false;
             return;
         }
         if (this.autoResize) {
@@ -582,6 +612,7 @@ ImageSlider.prototype = {
             this.option.items[this.nextIndex].style.left = width / 2.0 + 'px';
             this.option.items[this.nextIndex].style.width = '0px';
             this.option.items[this.nextIndex].style.height = '0px';
+            this.resizeOption.canResizeNext = false;
             return;
         }
         if (this.autoResize) {
@@ -616,6 +647,7 @@ ImageSlider.prototype = {
             this.option.items[this.nextIndex].style.opacity = 0.0;
             this.option.items[this.nextIndex].style.width = '0px';
             this.option.items[this.nextIndex].style.left = this.imageSize.width / 2.0 + 'px';
+            this.resizeOption.canResizeNext = false;
             return;
         }
         if (this.autoResize) {
@@ -645,6 +677,7 @@ ImageSlider.prototype = {
             this.option.items[this.currentIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.opacity = 1.0;
+            this.resizeOption.canResizeCurrent = false;
             return;
         }
         if (this.autoResize) {
@@ -674,6 +707,7 @@ ImageSlider.prototype = {
             this.option.items[this.currentIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.opacity = 1.0;
+            this.resizeOption.canResizeCurrent = false;
             return;
         }
         if (this.autoResize) {
@@ -702,6 +736,7 @@ ImageSlider.prototype = {
             this.option.items[this.currentIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.opacity = 1.0;
+            this.resizeOption.canResizeCurrent = false;
             return;
         }
         if (this.autoResize) {
@@ -731,6 +766,7 @@ ImageSlider.prototype = {
             this.option.items[this.currentIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.opacity = 1.0;
+            this.resizeOption.canResizeCurrent = false;
             return;
         }
         if (this.autoResize) {
@@ -759,6 +795,7 @@ ImageSlider.prototype = {
             this.option.items[this.currentIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.opacity = 1.0;
+            this.resizeOption.canResizeCurrent = false;
             return;
         }
         if (this.autoResize) {
@@ -789,6 +826,7 @@ ImageSlider.prototype = {
             this.option.items[this.currentIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.opacity = 1.0;
+            this.resizeOption.canResizeCurrent = false;
             return;
         }
         if (this.autoResize) {
@@ -822,6 +860,7 @@ ImageSlider.prototype = {
             this.option.items[this.nextIndex].style.opacity = 0.0;
             this.option.items[this.nextIndex].style.top = height / 2.0 + 'px';
             this.option.items[this.nextIndex].style.height = '0px';
+            this.resizeOption.canResizeNext = false;
             return;
         }
         if (this.autoResize) {
@@ -876,6 +915,8 @@ ImageSlider.prototype = {
             this.option.items[this.nextIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.opacity = 1.0;
             this.option.items[this.nextIndex].style.left = -this.option.items[this.nextIndex].width + 'px';
+            this.resizeOption.canSetCurrentPos = false;
+            this.resizeOption.canSetNextPos = false;
             return;
         }
         if (this.autoResize) {
@@ -900,6 +941,8 @@ ImageSlider.prototype = {
             this.option.items[this.nextIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.opacity = 1.0;
             this.option.items[this.nextIndex].style.left = this.option.items[this.nextIndex].width + 'px';
+            this.resizeOption.canSetCurrentPos = false;
+            this.resizeOption.canSetNextPos = false;
             return;
         }
         if (this.autoResize) {
@@ -924,6 +967,8 @@ ImageSlider.prototype = {
             this.option.items[this.nextIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.opacity = 1.0;
             this.option.items[this.nextIndex].style.top = -this.option.items[this.nextIndex].height + 'px';
+            this.resizeOption.canSetCurrentPos = false;
+            this.resizeOption.canSetNextPos = false;
             return;
         }
         if (this.autoResize) {
@@ -948,6 +993,8 @@ ImageSlider.prototype = {
             this.option.items[this.nextIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.opacity = 1.0;
             this.option.items[this.nextIndex].style.top = -this.option.items[this.nextIndex].height + 'px';
+            this.resizeOption.canSetCurrentPos = false;
+            this.resizeOption.canSetNextPos = false;
             return;
         }
         if (this.autoResize) {
@@ -1051,6 +1098,7 @@ ImageSlider.prototype = {
             this.option.items[this.currentIndex].style.zIndex = 0;
             this.option.items[this.nextIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.opacity = 1.0;
+            this.resizeOption.canResizeCurrent = false;
             return;
         }
         if (this.autoResize) {
@@ -1062,9 +1110,9 @@ ImageSlider.prototype = {
         if (playback > 1.00) playback = 1;
         var diffX = (this.imageSize.width - width) / 2.0;
         var diffY = (this.imageSize.height - height) / 2.0;
-        this.option.items[this.currentIndex].style.width = (playback + 1) * this.imageSize.width + 'px'
+        this.option.items[this.currentIndex].style.width = (playback + 1) * this.imageSize.width + 'px';
         this.option.items[this.currentIndex].style.left = -(playback) * this.imageSize.width / 2.0 - (1 - playback) * diffX + 'px';
-        this.option.items[this.currentIndex].style.height = (playback + 1) * this.imageSize.height + 'px'
+        this.option.items[this.currentIndex].style.height = (playback + 1) * this.imageSize.height + 'px';
         this.option.items[this.currentIndex].style.top = -(playback) * this.imageSize.height / 2.0 - (1 - playback) * diffY + 'px';
         this.option.items[this.currentIndex].style.opacity = 1 - playback;
 
