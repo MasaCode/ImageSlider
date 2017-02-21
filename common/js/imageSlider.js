@@ -38,10 +38,10 @@ ImageSlider.prototype = {
     },
     autoResize: true,
     resizeOption: {
-        canResizeCurrent : true,
-        canResizeNext : true,
-        canSetCurrentPos : true,
-        canSetNextPos : true
+        canResizeCurrent: true,
+        canResizeNext: true,
+        canSetCurrentPos: true,
+        canSetNextPos: true
     },
 
     initialize: function (option) {
@@ -89,7 +89,7 @@ ImageSlider.prototype = {
             }
         }
 
-        if(this.orderLength === 1){
+        if (this.orderLength === 1) {
             console.log('Error : Invalid image order...Please Enter more than 1');
             return null;
         }
@@ -133,7 +133,7 @@ ImageSlider.prototype = {
             clearInterval(this.intervalId);
             if (this.autoResize) this.resizeIntervalId = setInterval(this.onResize.bind(this), 100);
             var tempIndex = this.currentOrderIndex + 1 < this.orderLength ? this.currentOrderIndex + 1 : 0;
-            if(this.imageOrder[tempIndex] !== null){
+            if (this.imageOrder[tempIndex] !== null) {
                 this.prevIndex = this.currentIndex;
                 this.currentIndex = this.nextIndex;
                 this.nextIndex = this.imageOrder[tempIndex];
@@ -167,14 +167,14 @@ ImageSlider.prototype = {
             this.canvasContext = this.canvas.getContext('2d');
         }
 
-        if(this.resizeOption.canResizeCurrent) {
+        if (this.resizeOption.canResizeCurrent) {
             size = this.scaleToFit(this.option.items[this.currentIndex], this.resizeOption.canSetCurrentPos);
         }
-        if(this.resizeOption.canResizeNext) {
+        if (this.resizeOption.canResizeNext) {
             size = this.scaleToFit(this.option.items[this.nextIndex], this.resizeOption.canSetNextPos);
         }
 
-        if(!this.autoResize){
+        if (!this.autoResize) {
             this.setImageSize(size);
         }
     },
@@ -195,12 +195,10 @@ ImageSlider.prototype = {
             imageHeight = rasio * imageHeight;
         }
 
-        if(canSetSize !== false) {
-            image.width = imageWidth.toString();
-            image.style.width = imageWidth.toString() + 'px';
-            image.height = imageHeight.toString();
-            image.style.height = imageHeight.toString() + 'px';
-        }
+        image.width = imageWidth.toString();
+        image.style.width = imageWidth.toString() + 'px';
+        image.height = imageHeight.toString();
+        image.style.height = imageHeight.toString() + 'px';
 
         if (canSetPosition !== false) {
             top = (this.currentScreen.height - imageHeight) / 2.0;
@@ -226,14 +224,14 @@ ImageSlider.prototype = {
     },
 
     setResizeOption: function () {
-      this.resizeOption.canResizeCurrent = true;
-      this.resizeOption.canResizeNext = true;
-      this.resizeOption.canSetCurrentPos = true;
-      this.resizeOption.canSetNextPos = true;
+        this.resizeOption.canResizeCurrent = true;
+        this.resizeOption.canResizeNext = true;
+        this.resizeOption.canSetCurrentPos = true;
+        this.resizeOption.canSetNextPos = true;
     },
 
     resetValue: function () {
-        if(this.prevIndex !== null) {
+        if (this.prevIndex !== null) {
             this.option.items[this.prevIndex].style.opacity = 1.0;
         }
         this.option.items[this.currentIndex].style.opacity = 1.0;
