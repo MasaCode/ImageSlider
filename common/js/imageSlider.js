@@ -151,7 +151,7 @@ ImageSlider.prototype = {
             }
             timer = setTimeout(function () {
                 _self.onResize();
-            }, 50);
+            }, 25);
         };
     },
 
@@ -874,9 +874,9 @@ ImageSlider.prototype = {
         var diff = (this.imageSize.height - height) / 2.0;
         this.option.items[this.nextIndex].style.opacity = playback;
         this.option.items[this.nextIndex].style.height = playback * this.imageSize.height + 'px';
-        this.option.items[this.currentIndex].style.width = this.imageSize.width + 'px';
+        this.option.items[this.nextIndex].style.width = this.imageSize.width + 'px';
         this.option.items[this.nextIndex].style.top = range * height / 2.0 - (playback * diff) + 'px';
-        this.option.items[this.currentIndex].style.left = this.option.items[this.nextIndex].style.left;
+        this.option.items[this.nextIndex].style.left = this.option.items[this.currentIndex].style.left;
 
         if (playback === 1) {
             this.option.items[this.nextIndex].style.height = this.imageSize.height + 'px';
