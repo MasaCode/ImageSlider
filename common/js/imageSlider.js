@@ -24,6 +24,7 @@ ImageSlider.prototype = {
     canvas: null,
     canvasContext: null,
     layer: null,
+    isReset : false,
     currentScreen: {
         width: 0,
         height: 0,
@@ -116,6 +117,7 @@ ImageSlider.prototype = {
         if (this.autoResize) clearInterval(this.resizeIntervalId);
         this[this.option.func[this.funcIndex]](0);
         this.intervalId = setInterval(this.update.bind(this), this.option.interval);
+        this.isReset = true;
     },
 
     update: function () {
@@ -129,6 +131,7 @@ ImageSlider.prototype = {
             this.funcIndex = (this.funcIndex + 1 < this.option.func.length) ? this.funcIndex + 1 : 0;
             this.option.items[this.currentIndex].style.zIndex = -3;
             this.option.items[this.nextIndex].style.zIndex = 0;
+            this.isReset = false;
             this.setResizeOption();
             clearInterval(this.intervalId);
             if (this.autoResize) this.resizeIntervalId = setInterval(this.onResize.bind(this), 100);
@@ -287,7 +290,7 @@ ImageSlider.prototype = {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     change: function (playback) {
-        if (playback === 0) {
+        if (playback === 0 && !this.isReset) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 0;
@@ -307,7 +310,7 @@ ImageSlider.prototype = {
 
     fadein: function (playback) {
 
-        if (playback === 0) {
+        if (playback === 0 && !this.isReset) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 0;
@@ -326,7 +329,7 @@ ImageSlider.prototype = {
     },
 
     slideleftfadein: function (playback) {
-        if (playback === 0) {
+        if (playback === 0 && !this.isReset) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = -1;
@@ -352,7 +355,7 @@ ImageSlider.prototype = {
     },
 
     sliderightfedein: function (playback) {
-        if (playback === 0) {
+        if (playback === 0 && !this.isReset) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = -1;
@@ -378,7 +381,7 @@ ImageSlider.prototype = {
     },
 
     slidetopfadein: function (playback) {
-        if (playback === 0) {
+        if (playback === 0 && !this.isReset) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = -1;
@@ -404,7 +407,7 @@ ImageSlider.prototype = {
     },
 
     slidebottomfadein: function (playback) {
-        if (playback === 0) {
+        if (playback === 0 && !this.isReset) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = -1;
@@ -432,7 +435,7 @@ ImageSlider.prototype = {
     fadesmallerout: function (playback) {
         var width = window.innerWidth;
         var height = window.innerHeight;
-        if (playback === 0) {
+        if (playback === 0 && !this.isReset) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 0;
@@ -459,7 +462,7 @@ ImageSlider.prototype = {
     },
 
     fadebiggerin: function (playback) {
-        if (playback === 0) {
+        if (playback === 0 && !this.isReset) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = -1;
@@ -485,7 +488,7 @@ ImageSlider.prototype = {
     },
 
     rotatefadeout: function (playback) {
-        if (playback === 0) {
+        if (playback === 0 && !this.isReset) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 0;
@@ -506,7 +509,7 @@ ImageSlider.prototype = {
     },
 
     rotatesmallerout: function (playback) {
-        if (playback === 0) {
+        if (playback === 0 && !this.isReset) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 0;
@@ -537,7 +540,7 @@ ImageSlider.prototype = {
     },
 
     rotatebiggerin: function (playback) {
-        if (playback === 0) {
+        if (playback === 0 && !this.isReset) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = -1;
@@ -567,7 +570,7 @@ ImageSlider.prototype = {
     fadeintocenter: function (playback) {
         var width = window.innerWidth;
         var height = window.innerHeight;
-        if (playback === 0) {
+        if (playback === 0 && !this.isReset) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 0;
@@ -600,7 +603,7 @@ ImageSlider.prototype = {
     fadeoutfromcenter: function (playback) {
         var width = window.innerWidth;
         var height = window.innerHeight;
-        if (playback === 0) {
+        if (playback === 0 && !this.isReset) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = -1;
@@ -636,7 +639,7 @@ ImageSlider.prototype = {
 
     modalin: function (playback) {
         var width = window.innerWidth;
-        if (playback === 0) {
+        if (playback === 0 && !this.isReset) {
             if (this.option.items[this.nextIndex].style.width === '0px') return;
             this.resetValue();
 
@@ -669,7 +672,7 @@ ImageSlider.prototype = {
 
     modalout: function (playback) {
         var width = window.innerWidth;
-        if (playback === 0) {
+        if (playback === 0 && !this.isReset) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 0;
@@ -699,7 +702,7 @@ ImageSlider.prototype = {
     },
 
     doorleftout: function (playback) {
-        if (playback === 0) {
+        if (playback === 0 && !this.isReset) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 0;
@@ -728,7 +731,7 @@ ImageSlider.prototype = {
     },
 
     doorrightout: function (playback) {
-        if (playback === 0) {
+        if (playback === 0 && !this.isReset) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 0;
@@ -758,7 +761,7 @@ ImageSlider.prototype = {
     },
 
     doorupout: function (playback) {
-        if (playback === 0) {
+        if (playback === 0 && !this.isReset) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 0;
@@ -787,7 +790,7 @@ ImageSlider.prototype = {
     },
 
     doordownout: function (playback) {
-        if (playback === 0) {
+        if (playback === 0 && !this.isReset) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 0;
@@ -818,7 +821,7 @@ ImageSlider.prototype = {
 
     shutfadeout: function (playback) {
         var height = window.innerHeight;
-        if (playback === 0) {
+        if (playback === 0 && !this.isReset) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 0;
@@ -849,7 +852,7 @@ ImageSlider.prototype = {
 
     shutfadein: function (playback) {
         var height = window.innerHeight;
-        if (playback === 0) {
+        if (playback === 0 && !this.isReset) {
             if (this.option.items[this.nextIndex].style.height === '0px') return;
             this.resetValue();
 
@@ -906,7 +909,7 @@ ImageSlider.prototype = {
     },
 
     pushinleft: function (playback) {
-        if (playback === 0) {
+        if (playback === 0 && !this.isReset) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = -1;
@@ -932,7 +935,7 @@ ImageSlider.prototype = {
     },
 
     pushinright: function (playback) {
-        if (playback === 0) {
+        if (playback === 0 && !this.isReset) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = -1;
@@ -958,7 +961,7 @@ ImageSlider.prototype = {
     },
 
     pushintop: function (playback) {
-        if (playback === 0) {
+        if (playback === 0 && !this.isReset) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = -1;
@@ -984,7 +987,7 @@ ImageSlider.prototype = {
     },
 
     pushinbottom: function (playback) {
-        if (playback === 0) {
+        if (playback === 0 && !this.isReset) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = -1;
@@ -1011,7 +1014,7 @@ ImageSlider.prototype = {
     },
 
     turninhorizontal: function (playback) {
-        if (playback === 0) {
+        if (playback === 0 && !this.isReset) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 0;
@@ -1049,7 +1052,7 @@ ImageSlider.prototype = {
     },
 
     turninvertical: function (playback) {
-        if (playback === 0) {
+        if (playback === 0 && !this.isReset) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 0;
@@ -1090,7 +1093,7 @@ ImageSlider.prototype = {
         var width = window.innerWidth;
         var height = window.innerHeight;
         this.fadein(playback);
-        if (playback === 0) {
+        if (playback === 0 && !this.isReset) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 0;
