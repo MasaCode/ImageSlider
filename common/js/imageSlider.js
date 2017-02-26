@@ -365,7 +365,7 @@ ImageSlider.prototype = {
 
         if (playback > 1.00) playback = 1;
         var diff = (this.imageSize.width - window.innerWidth) / 2.0;
-        var left = (1 - playback) * this.option.imageSize.width - diff;
+        var left = (1 - playback) * this.imageSize.width - diff;
         this.option.items[this.nextIndex].style.cssText += ''.concat(
             'left : ' + left + 'px;', 'top : ' + this.option.items[this.currentIndex].style.top + ';', 'opacity : ' + playback + ';'
         );
@@ -788,7 +788,7 @@ ImageSlider.prototype = {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 0;
-            this.option.items[this.currentIndex].style.cssText += ''.concat(
+            this.option.items[this.nextIndex].style.cssText += ''.concat(
                 'z-index : -1;', 'opacity : 1.0;'
             );
             this.resizeOption.canResizeCurrent = false;
