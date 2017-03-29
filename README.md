@@ -3,7 +3,7 @@
 
 ## Installation
 #### Step 1 : Download file and link required files
-First, you need to download custom.js and main.css files from this site.
+First, you need to download imageSlider.js and imageSlider.css files from this site.
 Next, link javascript and css file.
 ```HTML
 <link rel="stylesheet" href="common/css/imageSlider.css" />
@@ -23,13 +23,14 @@ Create a ```<div class="effect-wrapper">``` element, width a ```<img>``` element
 #### Step3 : Create ImageEffect instance
 Create a instance of imageEffect to initialize and make it work it.
 ```javascript
-var effects = new imageEffect({
+var effects = new ImageEffect({
     selector     : '#test',
     showTime     : 5000,
     interval     : 20,
     step         : 1,
     acceleration : 1,
     autoResize   : true,
+    imageOrder   : null,
     func         : ['shutfadein', 'fadeintocenter'],
 });
 ```
@@ -65,8 +66,8 @@ autoResize : false
 ```
 **ImageOrder** array of number that decide order of showing images
 ```javascript
+imageOrder : null (default, show by listed order)
 imageOrder : [0, 1, 4, 3]
-imageOrder : null, (default, show by listed order)
 imageOrder : [0, 1, 3, null] (stop after image 3)
 ```
 **Func** Name of effect function
