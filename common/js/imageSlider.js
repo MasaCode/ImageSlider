@@ -24,7 +24,7 @@ ImageSlider.prototype = {
     canvas: null,
     canvasContext: null,
     layer: null,
-    isReset : false,
+    isReset: false,
     currentScreen: {
         width: 0,
         height: 0,
@@ -187,6 +187,7 @@ ImageSlider.prototype = {
         var imageWidth;
         var imageHeight;
         var top = 0, left = 0;
+        var cssText = '';
 
         rasio = this.currentScreen.width / image.width;
         imageWidth = image.width * rasio;
@@ -199,16 +200,17 @@ ImageSlider.prototype = {
         }
 
         image.width = imageWidth.toString();
-        image.style.width = imageWidth.toString() + 'px';
         image.height = imageHeight.toString();
-        image.style.height = imageHeight.toString() + 'px';
+        cssText += 'width : ' + imageWidth + 'px;';
+        cssText += 'height : ' + imageHeight + 'px;';
 
         if (canSetPosition !== false) {
             top = (this.currentScreen.height - imageHeight) / 2.0;
             left = (this.currentScreen.width - imageWidth) / 2.0;
-            image.style.top = top + 'px';
-            image.style.left = left + 'px';
+            cssText += 'top : ' + top + 'px;';
+            cssText += 'left : ' + left + 'px;';
         }
+        image.style.cssText += cssText;
         return {width: imageWidth, height: imageHeight};
     },
 
@@ -254,35 +256,24 @@ ImageSlider.prototype = {
         var wrapper = document.createElement('div');
         this.option.element.appendChild(wrapper);
         wrapper.appendChild(this.canvas);
-
-        wrapper.style.left = '0px';
-        wrapper.style.top = '0px';
-        wrapper.style.bottom = '0px';
-        wrapper.style.right = '0px';
-        wrapper.style.zIndex = 11;
-        wrapper.style.position = 'fixed';
+        wrapper.style.cssText = ''.concat(
+            'left : 0px;', 'top : 0px;', 'bottom : 0px;', 'right : 0px;', 'z-index : 11;', 'position : fixed;'
+        );
 
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
-        this.canvas.style.left = '0px';
-        this.canvas.style.top = '0px';
-        this.canvas.style.bottom = '0px';
-        this.canvas.style.right = '0px';
-        this.canvas.style.zIndex = 12;
+        this.canvas.style.cssText = ''.concat(
+            'left : 0px;', 'left : 0px;', 'bottom : 0px;', 'right : 0px;', 'z-index : 12;'
+        );
         this.canvasContext = this.canvas.getContext('2d');
     },
 
     createLayer: function () {
         this.layer = document.createElement('div');
+        this.layer.style.cssText = ''.concat(
+            'width : 100%;', 'height : 100vh;', 'position : absolute;', 'z-index : -2;', 'left : 0px;', 'top : 0px;', 'background-color : black;', 'opacity : 1.0;'
+        );
         this.option.element.appendChild(this.layer);
-        this.layer.style.width = '100%';
-        this.layer.style.height = '100vh';
-        this.layer.style.position = 'absolute';
-        this.layer.style.zIndex = -2;
-        this.layer.style.left = '0px';
-        this.layer.style.top = '0px';
-        this.layer.style.backgroundColor = 'black';
-        this.layer.style.opacity = 1.0;
     },
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -333,9 +324,9 @@ ImageSlider.prototype = {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = -1;
-            this.option.items[this.nextIndex].style.zIndex = 0;
-            this.option.items[this.nextIndex].style.opacity = 0.0;
-            this.option.items[this.nextIndex].style.left = -this.option.items[this.nextIndex].width + 'px';
+            this.option.items[this.nextIndex].style.cssText += ''.concat(
+                'z-index : 0;', 'opacity : 0.0;', 'left : ' + (-this.option.items[this.nextIndex].width) + 'px;'
+            );
             this.resizeOption.canSetNextPos = false;
             return;
         }
@@ -349,9 +340,9 @@ ImageSlider.prototype = {
         if (playback > 1.00) playback = 1;
         var diff = (this.imageSize.width - window.innerWidth) / 2.0;
         var left = (1 - playback) * -this.imageSize.width - diff;
-        this.option.items[this.nextIndex].style.left = left + 'px';
-        this.option.items[this.nextIndex].style.top = this.option.items[this.currentIndex].style.top;
-        this.option.items[this.nextIndex].style.opacity = playback;
+        this.option.items[this.nextIndex].style.cssText += ''.concat(
+            'left : ' + left + 'px;', 'top : ' + this.option.items[this.currentIndex].style.top + ';', 'opacity : ' + playback + ';'
+        );
     },
 
     sliderightfedein: function (playback) {
@@ -359,9 +350,9 @@ ImageSlider.prototype = {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = -1;
-            this.option.items[this.nextIndex].style.zIndex = 0;
-            this.option.items[this.nextIndex].style.opacity = 0.0;
-            this.option.items[this.nextIndex].style.left = this.option.items[this.nextIndex].width + 'px';
+            this.option.items[this.nextIndex].style.cssText += ''.concat(
+                'z-index : 0;', 'opacity : 0.0;', 'left : ' + this.option.items[this.nextIndex].width + 'px;'
+            );
             this.resizeOption.canSetNextPos = false;
             return;
         }
@@ -374,10 +365,10 @@ ImageSlider.prototype = {
 
         if (playback > 1.00) playback = 1;
         var diff = (this.imageSize.width - window.innerWidth) / 2.0;
-        var left = (1 - playback) * this.option.imageSize.width - diff;
-        this.option.items[this.nextIndex].style.left = left + 'px';
-        this.option.items[this.nextIndex].style.top = this.option.items[this.currentIndex].style.top;
-        this.option.items[this.nextIndex].style.opacity = playback;
+        var left = (1 - playback) * this.imageSize.width - diff;
+        this.option.items[this.nextIndex].style.cssText += ''.concat(
+            'left : ' + left + 'px;', 'top : ' + this.option.items[this.currentIndex].style.top + ';', 'opacity : ' + playback + ';'
+        );
     },
 
     slidetopfadein: function (playback) {
@@ -385,9 +376,9 @@ ImageSlider.prototype = {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = -1;
-            this.option.items[this.nextIndex].style.zIndex = 0;
-            this.option.items[this.nextIndex].style.opacity = 0.0;
-            this.option.items[this.nextIndex].style.top = -this.option.items[this.nextIndex].height + 'px';
+            this.option.items[this.nextIndex].style.cssText += ''.concat(
+                'z-index : 0;', 'opacity : 0.0;', 'top : ' + (-this.option.items[this.nextIndex].height) + 'px;'
+            );
             this.resizeOption.canSetNextPos = false;
             return;
         }
@@ -401,9 +392,9 @@ ImageSlider.prototype = {
         if (playback > 1.00) playback = 1;
         var diff = (this.imageSize.height - window.innerHeight) / 2.0;
         var top = (1 - playback) * -(this.imageSize.height) - diff;
-        this.option.items[this.nextIndex].style.top = top + 'px';
-        this.option.items[this.nextIndex].style.left = this.option.items[this.currentIndex].style.left;
-        this.option.items[this.nextIndex].style.opacity = playback;
+        this.option.items[this.nextIndex].style.cssText += ''.concat(
+            'top : ' + top + 'px;', 'left : ' + this.option.items[this.currentIndex].style.left + ';', 'opacity : ' + playback + ';'
+        );
     },
 
     slidebottomfadein: function (playback) {
@@ -411,9 +402,9 @@ ImageSlider.prototype = {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = -1;
-            this.option.items[this.nextIndex].style.zIndex = 0;
-            this.option.items[this.nextIndex].style.opacity = 0.0;
-            this.option.items[this.nextIndex].style.top = -this.option.items[this.nextIndex].height + 'px';
+            this.option.items[this.nextIndex].style.cssText += ''.concat(
+                'z-index : 0;', 'opacity : 0.0;', 'top : ' + (-this.option.items[this.nextIndex].height) + 'px;'
+            );
             this.resizeOption.canSetNextPos = false;
             return;
         }
@@ -427,20 +418,22 @@ ImageSlider.prototype = {
         if (playback > 1.00) playback = 1;
         var diff = (this.imageSize.height - window.innerHeight) / 2.0;
         var top = (1 - playback) * this.imageSize.height - diff;
-        this.option.items[this.nextIndex].style.top = top + 'px';
-        this.option.items[this.nextIndex].style.left = this.option.items[this.currentIndex].style.left;
-        this.option.items[this.nextIndex].style.opacity = playback;
+        this.option.items[this.nextIndex].style.cssText += ''.concat(
+            'top : ' + top + 'px;', 'left : ' + this.option.items[this.currentIndex].style.left + ';', 'opacity : ' + playback + ';'
+        );
     },
 
     fadesmallerout: function (playback) {
         var width = window.innerWidth;
         var height = window.innerHeight;
+        var cssText = '';
         if (playback === 0 && !this.isReset) {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 0;
-            this.option.items[this.nextIndex].style.zIndex = -1;
-            this.option.items[this.nextIndex].style.opacity = 1.0;
+            this.option.items[this.nextIndex].style.cssText += ''.concat(
+                'z-index : -1;', 'opacity : 1.0;'
+            );
             this.resizeOption.canResizeCurrent = false;
             return;
         }
@@ -451,14 +444,15 @@ ImageSlider.prototype = {
         }
         if (playback > 1.00) playback = 1;
         var range = (1 - playback);
-        this.option.items[this.currentIndex].style.opacity = range;
-        this.option.items[this.currentIndex].style.width = range * this.imageSize.width + 'px';
-        this.option.items[this.currentIndex].style.height = range * this.imageSize.height + 'px';
+        cssText += 'opacity : ' + range + ';';
+        cssText += 'width : ' + range * this.imageSize.width + 'px;';
+        cssText += 'height : ' + range * this.imageSize.height + 'px;';
 
         if (playback === 1) {
-            this.option.items[this.currentIndex].style.width = this.imageSize.width + 'px';
-            this.option.items[this.currentIndex].style.height = this.imageSize.height + 'px';
+            cssText += 'width : ' + this.imageSize.width + 'px;';
+            cssText += 'height : ' + this.imageSize.height + 'px;';
         }
+        this.option.items[this.currentIndex].style.cssText += cssText;
     },
 
     fadebiggerin: function (playback) {
@@ -466,10 +460,9 @@ ImageSlider.prototype = {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = -1;
-            this.option.items[this.nextIndex].style.zIndex = 0;
-            this.option.items[this.nextIndex].style.opacity = 0.0;
-            this.option.items[this.nextIndex].style.width = '0px';
-            this.option.items[this.nextIndex].style.height = '0px';
+            this.option.items[this.nextIndex].style.cssText += ''.concat(
+                'z-index : 0;', 'opacity : 0.0;', 'width : 0px;', 'height : 0px;'
+            );
             this.resizeOption.canResizeNext = false;
             return;
         }
@@ -480,11 +473,10 @@ ImageSlider.prototype = {
         }
 
         if (playback > 1.00) playback = 1;
-        this.option.items[this.nextIndex].style.opacity = playback;
-        this.option.items[this.nextIndex].style.width = playback * this.imageSize.width + 'px';
-        this.option.items[this.nextIndex].style.height = playback * this.imageSize.height + 'px';
-        this.option.items[this.nextIndex].style.left = this.option.items[this.currentIndex].style.left;
-        this.option.items[this.nextIndex].style.top = this.option.items[this.currentIndex].style.top;
+        this.option.items[this.nextIndex].style.cssText += ''.concat(
+            'opacity : ' + playback + ';', 'width : ' + playback * this.imageSize.width + 'px;', 'height : ' + playback * this.imageSize.height + 'px;',
+            'left : ' + this.option.items[this.currentIndex].style.left + ';', 'top : ' + this.option.items[this.currentIndex].style.top + ';'
+        );
     },
 
     rotatefadeout: function (playback) {
@@ -492,8 +484,9 @@ ImageSlider.prototype = {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 0;
-            this.option.items[this.nextIndex].style.zIndex = -1;
-            this.option.items[this.nextIndex].style.opacity = 1.0;
+            this.option.items[this.nextIndex].style.cssText += ''.concat(
+                'z-index : -1;', 'opacity : 1.0;'
+            );
             return;
         }
         if (this.autoResize) {
@@ -502,10 +495,10 @@ ImageSlider.prototype = {
             this.scaleToFit(this.option.items[this.nextIndex]);
         }
         if (playback > 1.00) playback = 1;
-        this.option.items[this.currentIndex].style.opacity = (1 - playback);
-        this.option.items[this.currentIndex].style.transform = 'rotate(' + playback * 360 + 'deg)';
-        this.option.items[this.currentIndex].style.msTransform = 'rotate(' + playback * 360 + 'deg)';
-        this.option.items[this.currentIndex].style.webkittransform = 'rotate(' + playback * 360 + 'deg)';
+        this.option.items[this.currentIndex].style.cssText += ''.concat(
+            'opacity : ' + (1 - playback) + ';', 'transform : rotate(' + playback * 360 + 'deg);',
+            'msTransform : rotate(' + playback * 360 + 'deg);', 'webkittransform rotate(' + playback * 360 + 'deg);'
+        );
     },
 
     rotatesmallerout: function (playback) {
@@ -513,8 +506,9 @@ ImageSlider.prototype = {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 0;
-            this.option.items[this.nextIndex].style.zIndex = -1;
-            this.option.items[this.nextIndex].style.opacity = 1.0;
+            this.option.items[this.nextIndex].style.cssText += ''.concat(
+                'z-index : -1;', 'opacity : 1.0;'
+            );
             this.resizeOption.canResizeCurrent = false;
             return;
         }
@@ -526,17 +520,19 @@ ImageSlider.prototype = {
 
         if (playback > 1.00) playback = 1;
         var range = (1 - playback);
-        this.option.items[this.currentIndex].style.opacity = (1 - playback);
-        this.option.items[this.currentIndex].style.transform = 'rotate(' + playback * 360 + 'deg)';
-        this.option.items[this.currentIndex].style.msTransform = 'rotate(' + playback * 360 + 'deg)';
-        this.option.items[this.currentIndex].style.webkittransform = 'rotate(' + playback * 360 + 'deg)';
-        this.option.items[this.currentIndex].style.width = range * this.imageSize.width + 'px';
-        this.option.items[this.currentIndex].style.height = range * this.imageSize.height + 'px';
+        var cssText = '';
+        cssText += 'opacity : ' + (1 - playback) + ';';
+        cssText += 'transform : rotate(' + playback * 360 + 'deg);';
+        cssText += 'msTransform : rotate(' + playback * 360 + 'deg);';
+        cssText += 'webkittransform : rotate(' + playback * 360 + 'deg);';
+        cssText += 'width : ' + range * this.imageSize.width + 'px;';
+        cssText += 'height : ' + range * this.imageSize.height + 'px;';
 
         if (playback === 1) {
-            this.option.items[this.currentIndex].style.width = this.imageSize.width + 'px';
-            this.option.items[this.currentIndex].style.height = this.imageSize.height + 'px';
+            cssText += 'width : ' + this.imageSize.width + 'px;';
+            cssText += 'height : ' + this.imageSize.height + 'px;';
         }
+        this.option.items[this.currentIndex].style.cssText += cssText;
     },
 
     rotatebiggerin: function (playback) {
@@ -544,10 +540,9 @@ ImageSlider.prototype = {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = -1;
-            this.option.items[this.nextIndex].style.zIndex = 0;
-            this.option.items[this.nextIndex].style.opacity = 0.0;
-            this.option.items[this.nextIndex].style.width = '0px';
-            this.option.items[this.nextIndex].style.height = '0px';
+            this.option.items[this.nextIndex].style.cssText += ''.concat(
+                'z-index : 0;', 'opacity : 0.0;', 'width : 0px;', 'height : 0px;'
+            );
             this.resizeOption.canResizeNext = false;
             return;
         }
@@ -557,14 +552,12 @@ ImageSlider.prototype = {
             this.setImageSize(size);
         }
 
-        this.option.items[this.nextIndex].style.opacity = playback;
-        this.option.items[this.nextIndex].style.transform = 'rotate(' + playback * 360 + 'deg)';
-        this.option.items[this.nextIndex].style.msTransform = 'rotate(' + playback * 360 + 'deg)';
-        this.option.items[this.nextIndex].style.webkittransform = 'rotate(' + playback * 360 + 'deg)';
-        this.option.items[this.nextIndex].style.width = playback * this.imageSize.width + 'px';
-        this.option.items[this.nextIndex].style.height = playback * this.imageSize.height + 'px';
-        this.option.items[this.nextIndex].style.left = this.option.items[this.currentIndex].style.left;
-        this.option.items[this.nextIndex].style.top = this.option.items[this.currentIndex].style.top;
+        this.option.items[this.nextIndex].style.cssText += ''.concat(
+            'opacity : ' + playback + ';', 'transform : rotate(' + playback * 360 + 'deg);', 'msTransform : rotate(' + playback * 360 + 'deg);',
+            'webkittransform : rotate(' + playback * 360 + 'deg);', 'width : ' + playback * this.imageSize.width + 'px;',
+            'height : ' + playback * this.imageSize.height + 'px;', 'left : ' + this.option.items[this.currentIndex].style.left + ';',
+            'top : ' + this.option.items[this.currentIndex].style.top + ';'
+        );
     },
 
     fadeintocenter: function (playback) {
@@ -574,8 +567,9 @@ ImageSlider.prototype = {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 0;
-            this.option.items[this.nextIndex].style.zIndex = -1;
-            this.option.items[this.nextIndex].style.opacity = 1.0;
+            this.option.items[this.nextIndex].style.cssText += ''.concat(
+                'z-index : -1;', 'opacity : 1.0;'
+            );
             this.resizeOption.canResizeCurrent = false;
             return;
         }
@@ -588,11 +582,11 @@ ImageSlider.prototype = {
         if (playback > 1.00) playback = 1;
         var diffX = (this.imageSize.width - width) / 2.0;
         var diffY = (this.imageSize.height - height) / 2.0;
-        this.option.items[this.currentIndex].style.opacity = (1 - playback);
-        this.option.items[this.currentIndex].style.left = (playback * width / 2.0 - ((1 - playback) * diffX)) + 'px';
-        this.option.items[this.currentIndex].style.top = (playback * height / 2.0 - ((1 - playback) * diffY)) + 'px';
-        this.option.items[this.currentIndex].style.width = (1 - playback) * this.imageSize.width + 'px';
-        this.option.items[this.currentIndex].style.height = (1 - playback) * this.imageSize.height + 'px';
+        this.option.items[this.currentIndex].style.cssText += ''.concat(
+            'opacity : ' + (1 - playback) + ';', 'left : ' + (playback * width / 2.0 - ((1 - playback) * diffX)) + 'px;',
+            'top : ' + (playback * height / 2.0 - ((1 - playback) * diffY)) + 'px;', 'width : ' + ((1 - playback) * this.imageSize.width) + 'px;',
+            'height : ' + ((1 - playback) * this.imageSize.height) + 'px;'
+        );
 
         if (playback === 1) {
             this.option.items[this.currentIndex].style.width = this.imageSize.width + 'px';
@@ -607,12 +601,10 @@ ImageSlider.prototype = {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = -1;
-            this.option.items[this.nextIndex].style.zIndex = 0;
-            this.option.items[this.nextIndex].style.opacity = 1.0;
-            this.option.items[this.nextIndex].style.top = height / 2.0 + 'px';
-            this.option.items[this.nextIndex].style.left = width / 2.0 + 'px';
-            this.option.items[this.nextIndex].style.width = '0px';
-            this.option.items[this.nextIndex].style.height = '0px';
+            this.option.items[this.nextIndex].style.cssText += ''.concat(
+                'z-index : 0;', 'opacity : 1.0;', 'top : ' + height / 2.0 + 'px;',
+                'left : ' + width / 2.0 + 'px;', 'width : 0px;', 'height : 0px;'
+            );
             this.resizeOption.canResizeNext = false;
             return;
         }
@@ -625,11 +617,11 @@ ImageSlider.prototype = {
         if (playback > 1.00) playback = 1;
         var diffX = (this.imageSize.width - width) / 2.0;
         var diffY = (this.imageSize.height - height) / 2.0;
-        this.option.items[this.nextIndex].style.opacity = playback;
-        this.option.items[this.nextIndex].style.width = playback * this.imageSize.width + 'px';
-        this.option.items[this.nextIndex].style.height = playback * this.imageSize.height + 'px';
-        this.option.items[this.nextIndex].style.left = ((1 - playback) * this.imageSize.width / 2.0 - (playback) * diffX) + 'px';
-        this.option.items[this.nextIndex].style.top = ((1 - playback) * this.imageSize.height / 2.0 - (playback) * diffY) + 'px';
+        this.option.items[this.nextIndex].style.cssText += ''.concat(
+            'opacity : ' + playback + ';', 'width : ' + playback * this.imageSize.width + 'px;', 'height : ' + playback * this.imageSize.height + 'px;',
+            'left : ' + ((1 - playback) * this.imageSize.width / 2.0 - (playback) * diffX) + 'px;',
+            'top : ' + ((1 - playback) * this.imageSize.height / 2.0 - (playback) * diffY) + 'px;'
+        );
 
         if (playback === 1) {
             this.option.items[this.nextIndex].style.width = this.imageSize.width + 'px';
@@ -644,10 +636,9 @@ ImageSlider.prototype = {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = -1;
-            this.option.items[this.nextIndex].style.zIndex = 0;
-            this.option.items[this.nextIndex].style.opacity = 0.0;
-            this.option.items[this.nextIndex].style.width = '0px';
-            this.option.items[this.nextIndex].style.left = this.imageSize.width / 2.0 + 'px';
+            this.option.items[this.nextIndex].style.cssText += ''.concat(
+                'z-index : 0;', 'opacity : 0.0;', 'width : 0px;', 'left : ' + this.imageSize.width / 2.0 + 'px;'
+            );
             this.resizeOption.canResizeNext = false;
             return;
         }
@@ -659,11 +650,10 @@ ImageSlider.prototype = {
 
         if (playback > 1.00) playback = 1;
         var diff = (this.imageSize.width - width) / 2.0;
-        this.option.items[this.nextIndex].style.opacity = playback;
-        this.option.items[this.nextIndex].style.left = ((1 - playback) * width / 2.0 - diff) + 'px';
-        this.option.items[this.nextIndex].style.width = playback * this.imageSize.width + 'px';
-        this.option.items[this.nextIndex].style.height = this.imageSize.height + 'px';
-        this.option.items[this.nextIndex].style.top = this.option.items[this.currentIndex].style.top;
+        this.option.items[this.nextIndex].style.cssText += ''.concat(
+            'opacity : ' + playback + ';', 'left : ' + ((1 - playback) * width / 2.0 - diff) + 'px;', 'width : ' + playback * this.imageSize.width + 'px;',
+            'height : ' + this.imageSize.height + 'px;', 'top : ' + this.option.items[this.currentIndex].style.top + ';'
+        );
 
         if (playback === 1) {
             this.option.items[this.nextIndex].style.width = this.imageSize.width + 'px';
@@ -676,8 +666,9 @@ ImageSlider.prototype = {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 0;
-            this.option.items[this.nextIndex].style.zIndex = -1;
-            this.option.items[this.nextIndex].style.opacity = 1.0;
+            this.option.items[this.nextIndex].style.cssText += ''.concat(
+                'z-index : -1;', 'opacity : 1.0;'
+            );
             this.resizeOption.canResizeCurrent = false;
             return;
         }
@@ -690,11 +681,11 @@ ImageSlider.prototype = {
         if (playback > 1.00) playback = 1;
         var range = 1 - playback;
         var diff = (this.imageSize.width - width) / 2.0;
-        this.option.items[this.currentIndex].style.opacity = range;
-        this.option.items[this.currentIndex].style.width = range * this.imageSize.width + 'px';
-        this.option.items[this.currentIndex].style.height = this.imageSize.height + 'px';
-        this.option.items[this.currentIndex].style.left = (playback * this.imageSize.width / 2.0 - (1 - playback) * diff) + 'px';
-        this.option.items[this.currentIndex].style.top = this.option.items[this.nextIndex].style.top;
+        this.option.items[this.currentIndex].style.cssText += ''.concat(
+            'opacity : ' + range + ';', 'width : ' + range * this.imageSize.width + 'px;', 'height : ' + this.imageSize.height + 'px;',
+            'left : ' + (playback * this.imageSize.width / 2.0 - (1 - playback) * diff) + 'px;',
+            'top : ' + this.option.items[this.nextIndex].style.top + ';'
+        );
 
         if (playback === 1) {
             this.option.items[this.currentIndex].style.width = this.imageSize.width + 'px';
@@ -706,8 +697,9 @@ ImageSlider.prototype = {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 0;
-            this.option.items[this.nextIndex].style.zIndex = -1;
-            this.option.items[this.nextIndex].style.opacity = 1.0;
+            this.option.items[this.nextIndex].style.cssText += ''.concat(
+                'z-index : -1;', 'opacity : 1.0;'
+            );
             this.resizeOption.canResizeCurrent = false;
             return;
         }
@@ -719,11 +711,11 @@ ImageSlider.prototype = {
 
         if (playback > 1.00) playback = 1;
         var range = 1 - playback;
-        this.option.items[this.currentIndex].style.opacity = range;
-        this.option.items[this.currentIndex].style.width = range * this.imageSize.width + 'px';
-        this.option.items[this.currentIndex].style.top = this.option.items[this.nextIndex].style.top;
-        this.option.items[this.currentIndex].style.left = this.option.items[this.nextIndex].style.left;
-        this.option.items[this.currentIndex].style.height = this.imageSize.height + 'px';
+        this.option.items[this.currentIndex].style.cssText += ''.concat(
+            'opacity : ' + range + ';', 'width : ' + range * this.imageSize.width + 'px;',
+            'top : ' + this.option.items[this.nextIndex].style.top + ';', 'left : ' + this.option.items[this.nextIndex].style.left + ';',
+            'height : ' + this.imageSize.height + 'px;'
+        );
 
         if (playback === 1) {
             this.option.items[this.currentIndex].style.width = this.imageSize.width + 'px';
@@ -735,8 +727,9 @@ ImageSlider.prototype = {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 0;
-            this.option.items[this.nextIndex].style.zIndex = -1;
-            this.option.items[this.nextIndex].style.opacity = 1.0;
+            this.option.items[this.nextIndex].style.cssText += ''.concat(
+                'z-index : -1;', 'opacity : 1.0;'
+            );
             this.resizeOption.canResizeCurrent = false;
             return;
         }
@@ -749,11 +742,11 @@ ImageSlider.prototype = {
         if (playback > 1.00) playback = 1;
         var range = 1 - playback;
         var diff = (this.imageSize.width - window.innerWidth) / 2.0;
-        this.option.items[this.currentIndex].style.opacity = range;
-        this.option.items[this.currentIndex].style.top = this.option.items[this.nextIndex].style.top;
-        this.option.items[this.currentIndex].style.left = (playback * this.imageSize.width - diff) + 'px';
-        this.option.items[this.currentIndex].style.width = range * this.imageSize.width + 'px';
-        this.option.items[this.currentIndex].style.height = this.imageSize.height + 'px';
+        this.option.items[this.currentIndex].style.cssText += ''.concat(
+            'opacity : ' + range + ';', 'top : ' + this.option.items[this.nextIndex].style.top + ';',
+            'left : ' + (playback * this.imageSize.width - diff) + 'px;',
+            'width : ' + range * this.imageSize.width + 'px;', 'height : ' + this.imageSize.height + 'px;'
+        );
 
         if (playback === 1) {
             this.option.items[this.currentIndex].style.width = this.imageSize.width + 'px';
@@ -765,8 +758,9 @@ ImageSlider.prototype = {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 0;
-            this.option.items[this.nextIndex].style.zIndex = -1;
-            this.option.items[this.nextIndex].style.opacity = 1.0;
+            this.option.items[this.nextIndex].style.cssText += ''.concat(
+                'z-index : -1;', 'opacity : 1.0;'
+            );
             this.resizeOption.canResizeCurrent = false;
             return;
         }
@@ -778,11 +772,11 @@ ImageSlider.prototype = {
 
         if (playback > 1.00) playback = 1;
         var range = 1 - playback;
-        this.option.items[this.currentIndex].style.opacity = range;
-        this.option.items[this.currentIndex].style.height = range * this.imageSize.height + 'px';
-        this.option.items[this.currentIndex].style.width = this.imageSize.width + 'px';
-        this.option.items[this.currentIndex].style.left = this.option.items[this.nextIndex].style.left;
-        this.option.items[this.currentIndex].style.top = this.option.items[this.nextIndex].style.top;
+        this.option.items[this.currentIndex].style.cssText += ''.concat(
+            'opacity : ' + range + ';', 'height : ' + range * this.imageSize.height + 'px;',
+            'width : ' + this.imageSize.width + 'px;', 'left : ' + this.option.items[this.nextIndex].style.left + ';',
+            'top : ' + this.option.items[this.nextIndex].style.top + ';'
+        );
 
         if (playback === 1) {
             this.option.items[this.currentIndex].style.height = this.imageSize.height + 'px';
@@ -794,8 +788,9 @@ ImageSlider.prototype = {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 0;
-            this.option.items[this.nextIndex].style.zIndex = -1;
-            this.option.items[this.nextIndex].style.opacity = 1.0;
+            this.option.items[this.nextIndex].style.cssText += ''.concat(
+                'z-index : -1;', 'opacity : 1.0;'
+            );
             this.resizeOption.canResizeCurrent = false;
             return;
         }
@@ -808,11 +803,11 @@ ImageSlider.prototype = {
         if (playback > 1.00) playback = 1;
         var range = 1 - playback;
         var diff = (this.imageSize.height - window.innerHeight) / 2.0;
-        this.option.items[this.currentIndex].style.opacity = range;
-        this.option.items[this.currentIndex].style.top = (playback * this.imageSize.height - diff) + 'px';
-        this.option.items[this.currentIndex].style.left = this.option.items[this.nextIndex].style.left;
-        this.option.items[this.currentIndex].style.height = range * this.imageSize.height + 'px';
-        this.option.items[this.currentIndex].style.width = this.imageSize.width + 'px';
+        this.option.items[this.currentIndex].style.cssText += ''.concat(
+            'opacity : ' + range + ';', 'top : ' + (playback * this.imageSize.height - diff) + 'px;',
+            'left : ' + this.option.items[this.nextIndex].style.left + ';',
+            'height : ' + range * this.imageSize.height + 'px;', 'width : ' + this.imageSize.width + 'px;'
+        );
 
         if (playback === 1) {
             this.option.items[this.currentIndex].style.height = this.imageSize.height + 'px';
@@ -825,8 +820,9 @@ ImageSlider.prototype = {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 0;
-            this.option.items[this.nextIndex].style.zIndex = -1;
-            this.option.items[this.nextIndex].style.opacity = 1.0;
+            this.option.items[this.nextIndex].style.cssText += ''.concat(
+                'z-index : -1;', 'opacity : 1.0;'
+            );
             this.resizeOption.canResizeCurrent = false;
             return;
         }
@@ -839,11 +835,11 @@ ImageSlider.prototype = {
         if (playback > 1.00) playback = 1;
         var range = 1 - playback;
         var diff = (this.imageSize.height - height) / 2.0;
-        this.option.items[this.currentIndex].style.opacity = range;
-        this.option.items[this.currentIndex].style.height = range * this.imageSize.height + 'px';
-        this.option.items[this.currentIndex].style.width = this.imageSize.width + 'px';
-        this.option.items[this.currentIndex].style.top = playback * height / 2.0 - (1 - playback) * diff + 'px';
-        this.option.items[this.currentIndex].style.left = this.option.items[this.nextIndex].style.left;
+        this.option.items[this.currentIndex].style.cssText += ''.concat(
+            'opacity : ' + range + ';', 'height : ' + range * this.imageSize.height + 'px;',
+            'width : ' + this.imageSize.width + 'px;', 'top : ' + (playback * height / 2.0 - (1 - playback) * diff) + 'px;',
+            'left : ' + this.option.items[this.nextIndex].style.left + ';'
+        );
 
         if (playback === 1) {
             this.option.items[this.currentIndex].style.height = this.imageSize.height + 'px';
@@ -857,10 +853,9 @@ ImageSlider.prototype = {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = -1;
-            this.option.items[this.nextIndex].style.zIndex = 0;
-            this.option.items[this.nextIndex].style.opacity = 0.0;
-            this.option.items[this.nextIndex].style.top = height / 2.0 + 'px';
-            this.option.items[this.nextIndex].style.height = '0px';
+            this.option.items[this.nextIndex].style.cssText += ''.concat(
+                'z-index : 0;', 'opacity : 0.0;', 'top : ' + (height / 2.0) + 'px;', 'height : 0px;'
+            );
             this.resizeOption.canResizeNext = false;
             return;
         }
@@ -873,11 +868,11 @@ ImageSlider.prototype = {
         if (playback > 1.00) playback = 1;
         var range = 1 - playback;
         var diff = (this.imageSize.height - height) / 2.0;
-        this.option.items[this.nextIndex].style.opacity = playback;
-        this.option.items[this.nextIndex].style.height = playback * this.imageSize.height + 'px';
-        this.option.items[this.nextIndex].style.width = this.imageSize.width + 'px';
-        this.option.items[this.nextIndex].style.top = range * height / 2.0 - (playback * diff) + 'px';
-        this.option.items[this.nextIndex].style.left = this.option.items[this.currentIndex].style.left;
+        this.option.items[this.nextIndex].style.cssText += ''.concat(
+            'opacity : ' + playback + ';', 'height : ' + (playback * this.imageSize.height) + 'px;',
+            'width : ' + this.imageSize.width + 'px;', 'top : ' + (range * height / 2.0 - (playback * diff)) + 'px;',
+            'left : ' + this.option.items[this.currentIndex].style.left + ';'
+        );
 
         if (playback === 1) {
             this.option.items[this.nextIndex].style.height = this.imageSize.height + 'px';
@@ -913,9 +908,9 @@ ImageSlider.prototype = {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = -1;
-            this.option.items[this.nextIndex].style.zIndex = 0;
-            this.option.items[this.nextIndex].style.opacity = 1.0;
-            this.option.items[this.nextIndex].style.left = -this.option.items[this.nextIndex].width + 'px';
+            this.option.items[this.nextIndex].style.cssText += ''.concat(
+                'z-index : 0;', 'opacity : 1.0;', 'left : ' + (-this.option.items[this.nextIndex].width) + 'px;'
+            );
             this.resizeOption.canSetCurrentPos = false;
             this.resizeOption.canSetNextPos = false;
             return;
@@ -930,8 +925,13 @@ ImageSlider.prototype = {
         if (playback > 1.00) playback = 1;
         var diff = (this.option.items[this.nextIndex].width - window.innerWidth) / 2.0;
         var left = (1 - playback) * -this.option.items[this.nextIndex].width - diff;
-        this.option.items[this.nextIndex].style.left = left + 'px';
-        this.option.items[this.currentIndex].style.left = (playback * 0.75) * this.imageSize.width - (1 - playback) * 0.75 * diff + 'px';
+        this.option.items[this.nextIndex].style.cssText += ''.concat(
+            'left : ' + left + 'px;', 'height : ' + this.imageSize.height + 'px;'
+        );
+        this.option.items[this.currentIndex].style.cssText += ''.concat(
+            'left : ' + ((playback * 0.75) * this.imageSize.width - (1 - playback) * 0.75 * diff) + 'px;',
+            'height : ' + this.imageSize.height + 'px;'
+        );
     },
 
     pushinright: function (playback) {
@@ -939,9 +939,9 @@ ImageSlider.prototype = {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = -1;
-            this.option.items[this.nextIndex].style.zIndex = 0;
-            this.option.items[this.nextIndex].style.opacity = 1.0;
-            this.option.items[this.nextIndex].style.left = this.option.items[this.nextIndex].width + 'px';
+            this.option.items[this.nextIndex].style.cssText += ''.concat(
+                'z-index : 0;', 'opacity : 1.0;', 'left : ' + (this.option.items[this.nextIndex].width) + 'px;'
+            );
             this.resizeOption.canSetCurrentPos = false;
             this.resizeOption.canSetNextPos = false;
             return;
@@ -956,8 +956,13 @@ ImageSlider.prototype = {
         if (playback > 1.00) playback = 1;
         var diff = (this.option.items[this.nextIndex].width - window.innerWidth) / 2.0;
         var left = (1 - playback) * this.option.items[this.nextIndex].width - diff;
-        this.option.items[this.nextIndex].style.left = left + 'px';
-        this.option.items[this.currentIndex].style.left = (playback * 0.75) * -this.imageSize.width - (1 - playback) * 0.75 * diff + 'px';
+        this.option.items[this.nextIndex].style.cssText += ''.concat(
+            'left : ' + left + 'px;', 'height : ' + this.imageSize.height + 'px;'
+        );
+        this.option.items[this.currentIndex].style.cssText += ''.concat(
+            'left : ' + ((playback * 0.75) * -this.imageSize.width - (1 - playback) * 0.75 * diff) + 'px;',
+            'height : ' + this.imageSize.height + 'px;'
+        );
     },
 
     pushintop: function (playback) {
@@ -965,9 +970,9 @@ ImageSlider.prototype = {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = -1;
-            this.option.items[this.nextIndex].style.zIndex = 0;
-            this.option.items[this.nextIndex].style.opacity = 1.0;
-            this.option.items[this.nextIndex].style.top = -this.option.items[this.nextIndex].height + 'px';
+            this.option.items[this.nextIndex].style.cssText += ''.concat(
+                'z-index : 0;', 'opacity : 1.0;', 'top : ' + (-this.option.items[this.nextIndex].height) + 'px;'
+            );
             this.resizeOption.canSetCurrentPos = false;
             this.resizeOption.canSetNextPos = false;
             return;
@@ -982,8 +987,13 @@ ImageSlider.prototype = {
         if (playback > 1.00) playback = 1;
         var diff = (this.option.items[this.nextIndex].height - window.innerHeight) / 2.0;
         var top = (1 - playback) * -(this.option.items[this.nextIndex].height) - diff;
-        this.option.items[this.nextIndex].style.top = top + 'px';
-        this.option.items[this.currentIndex].style.top = (playback * 0.75) * this.imageSize.height - (1 - playback) * 0.75 * diff + 'px';
+        this.option.items[this.nextIndex].style.cssText += ''.concat(
+            'top : ' + top + 'px;', 'width : ' + this.imageSize.width + 'px;'
+        );
+        this.option.items[this.currentIndex].style.cssText += ''.concat(
+            'top : ' + ((playback * 0.75) * this.imageSize.height - (1 - playback) * 0.75 * diff) + 'px;',
+            'width : ' + this.imageSize.width + 'px;'
+        );
     },
 
     pushinbottom: function (playback) {
@@ -991,9 +1001,9 @@ ImageSlider.prototype = {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = -1;
-            this.option.items[this.nextIndex].style.zIndex = 0;
-            this.option.items[this.nextIndex].style.opacity = 1.0;
-            this.option.items[this.nextIndex].style.top = -this.option.items[this.nextIndex].height + 'px';
+            this.option.items[this.nextIndex].style.cssText += ''.concat(
+                'z-index : 0;', 'opacity : 1.0;', 'top : ' + (this.option.items[this.nextIndex].height) + 'px;'
+            );
             this.resizeOption.canSetCurrentPos = false;
             this.resizeOption.canSetNextPos = false;
             return;
@@ -1008,9 +1018,13 @@ ImageSlider.prototype = {
         if (playback > 1.00) playback = 1;
         var diff = (this.imageSize.height - window.innerHeight) / 2.0;
         var top = (1 - playback) * this.option.items[this.nextIndex].height - diff;
-        this.option.items[this.nextIndex].style.top = top + 'px';
-        this.option.items[this.currentIndex].style.top = (playback * 0.75) * -this.imageSize.height - (1 - playback) * 0.75 * diff + 'px';
-
+        this.option.items[this.nextIndex].style.cssText += ''.concat(
+            'top : ' + top + 'px;', 'width : ' + this.imageSize.width + 'px;'
+        );
+        this.option.items[this.currentIndex].style.cssText += ''.concat(
+            'top : ' + ((playback * 0.75) * -this.imageSize.height - (1 - playback) * 0.75 * diff) + 'px;',
+            'width : ' + this.imageSize.width + 'px;'
+        );
     },
 
     turninhorizontal: function (playback) {
@@ -1018,11 +1032,10 @@ ImageSlider.prototype = {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 0;
-            this.option.items[this.nextIndex].style.zIndex = -1;
-            this.option.items[this.nextIndex].style.opacity = 1.0;
-            this.option.items[this.nextIndex].style.transform = 'rotateY(180deg)';
-            this.option.items[this.nextIndex].style.msTransform = 'rotateY(180deg)';
-            this.option.items[this.nextIndex].style.webkittransform = 'rotateY(180deg)';
+            this.option.items[this.nextIndex].style.cssText += ''.concat(
+                'z-index : -1;', 'opacity : 1.0;', 'transform : rotateY(180deg);',
+                'msTransform : rotateY(180deg);', 'webkittransform : rotateY(180deg);'
+            );
             return;
         }
         if (this.autoResize) {
@@ -1033,12 +1046,16 @@ ImageSlider.prototype = {
         }
 
         if (playback > 1.00) playback = 1;
-        this.option.items[this.currentIndex].style.transform = 'rotateY(' + playback * 180 + 'deg)';
-        this.option.items[this.currentIndex].style.msTransform = 'rotateY(' + playback * 180 + 'deg)';
-        this.option.items[this.currentIndex].style.webkittransform = 'rotateY(' + playback * 180 + 'deg)';
-        this.option.items[this.nextIndex].style.transform = 'rotateY(' + (180 - playback * 180) + 'deg)';
-        this.option.items[this.nextIndex].style.msTransform = 'rotateY(' + (180 - playback * 180) + 'deg)';
-        this.option.items[this.nextIndex].style.webkittransform = 'rotateY(' + (180 - playback * 180) + 'deg)';
+        this.option.items[this.currentIndex].style.cssText += ''.concat(
+            'transform : rotateY(' + playback * 180 + 'deg);',
+            'msTransform : rotateY(' + playback * 180 + 'deg);',
+            'webkittransform : rotateY(' + playback * 180 + 'deg);'
+        );
+        this.option.items[this.nextIndex].style.cssText += ''.concat(
+            'transform : rotateY(' + (180 - playback * 180) + 'deg);',
+            'msTransform : rotateY(' + (180 - playback * 180) + 'deg);',
+            'webkittransform : rotateY(' + (180 - playback * 180) + 'deg);'
+        );
         if (playback > 0.500) {
             this.option.items[this.currentIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.zIndex = 0;
@@ -1056,11 +1073,10 @@ ImageSlider.prototype = {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 0;
-            this.option.items[this.nextIndex].style.zIndex = -1;
-            this.option.items[this.nextIndex].style.opacity = 1.0;
-            this.option.items[this.nextIndex].style.transform = 'rotateX(180deg)';
-            this.option.items[this.nextIndex].style.msTransform = 'rotateX(180deg)';
-            this.option.items[this.nextIndex].style.webkittransform = 'rotateX(180deg)';
+            this.option.items[this.nextIndex].style.cssText += ''.concat(
+                'z-index : -1;', 'opacity : 1.0;', 'transform : rotateX(180deg);',
+                'msTransform : rotateX(180deg);', 'webkittransform : rotateX(180deg);'
+            );
             return;
         }
         if (this.autoResize) {
@@ -1071,12 +1087,16 @@ ImageSlider.prototype = {
         }
 
         if (playback > 1.00) playback = 1;
-        this.option.items[this.currentIndex].style.transform = 'rotateX(' + playback * 180 + 'deg)';
-        this.option.items[this.currentIndex].style.msTransform = 'rotateX(' + playback * 180 + 'deg)';
-        this.option.items[this.currentIndex].style.webkittransform = 'rotateX(' + playback * 180 + 'deg)';
-        this.option.items[this.nextIndex].style.transform = 'rotateX(' + (180 - playback * 180) + 'deg)';
-        this.option.items[this.nextIndex].style.msTransform = 'rotateX(' + (180 - playback * 180) + 'deg)';
-        this.option.items[this.nextIndex].style.webkittransform = 'rotateX(' + (180 - playback * 180) + 'deg)';
+        this.option.items[this.currentIndex].style.cssText += ''.concat(
+            'transform : rotateX(' + playback * 180 + 'deg);',
+            'msTransform : rotateX(' + playback * 180 + 'deg);',
+            'webkittransform : rotateX(' + playback * 180 + 'deg);'
+        );
+        this.option.items[this.nextIndex].style.cssText += ''.concat(
+            'transform : rotateX(' + (180 - playback * 180) + 'deg);',
+            'msTransform : rotateX(' + (180 - playback * 180) + 'deg);',
+            'webkittransform : rotateX(' + (180 - playback * 180) + 'deg);'
+        );
         if (playback > 0.500) {
             this.option.items[this.currentIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.zIndex = 0;
@@ -1097,8 +1117,9 @@ ImageSlider.prototype = {
             this.resetValue();
 
             this.option.items[this.currentIndex].style.zIndex = 0;
-            this.option.items[this.nextIndex].style.zIndex = -1;
-            this.option.items[this.nextIndex].style.opacity = 1.0;
+            this.option.items[this.nextIndex].style.cssText += ''.concat(
+                'z-index : -1;', 'opacity : 1.0;'
+            );
             this.resizeOption.canResizeCurrent = false;
             return;
         }
@@ -1111,11 +1132,12 @@ ImageSlider.prototype = {
         if (playback > 1.00) playback = 1;
         var diffX = (this.imageSize.width - width) / 2.0;
         var diffY = (this.imageSize.height - height) / 2.0;
-        this.option.items[this.currentIndex].style.width = (playback + 1) * this.imageSize.width + 'px';
-        this.option.items[this.currentIndex].style.left = -(playback) * this.imageSize.width / 2.0 - (1 - playback) * diffX + 'px';
-        this.option.items[this.currentIndex].style.height = (playback + 1) * this.imageSize.height + 'px';
-        this.option.items[this.currentIndex].style.top = -(playback) * this.imageSize.height / 2.0 - (1 - playback) * diffY + 'px';
-        this.option.items[this.currentIndex].style.opacity = 1 - playback;
+        this.option.items[this.currentIndex].style.cssText += ''.concat(
+            'width : ' + (playback + 1) * this.imageSize.width + 'px;', 'left : ' + (-(playback) * this.imageSize.width / 2.0 - (1 - playback) * diffX) + 'px;',
+            'height : ' + (playback + 1) * this.imageSize.height + 'px;',
+            'top : ' + (-(playback) * this.imageSize.height / 2.0 - (1 - playback) * diffY) + 'px;',
+            'opacity : ' + (1 - playback) + ';'
+        );
 
         if (playback === 1) {
             this.option.items[this.currentIndex].style.width = this.imageSize.width + 'px';
