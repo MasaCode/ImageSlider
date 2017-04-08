@@ -182,7 +182,7 @@ ImageSlider.prototype = {
         }
     },
 
-    scaleToFit: function (image, canSetPosition, canSetSize) {
+    scaleToFit: function (image, canSetPosition) {
         var rasio = 0;
         var imageWidth;
         var imageHeight;
