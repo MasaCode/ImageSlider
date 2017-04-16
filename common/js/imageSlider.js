@@ -92,11 +92,11 @@ ImageSlider.prototype = {
         }
 
         if (this.orderLength === 1) {
-            console.log('Error : Invalid image order...Please Enter more than 1');
+            console.log(new Error('Invalid image order...Please Enter more than 1'));
             return null;
         }
         if (!isValid) {
-            console.log('Error : Invalid function name');
+            console.log(new Error('Invalid function name'));
             return null;
         }
 
