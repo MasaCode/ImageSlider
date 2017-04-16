@@ -25,6 +25,7 @@ ImageSlider.prototype = {
     canvasContext: null,
     layer: null,
     isReset: false,
+    hasFullHeight: true,
     currentScreen: {
         width: 0,
         height: 0,
@@ -177,6 +178,12 @@ ImageSlider.prototype = {
             size = this.scaleToFit(this.option.items[this.nextIndex], this.resizeOption.canSetNextPos);
         }
 
+        if (!this.hasFullHeight) {
+            this.option.element.style.height = (size.height - 5) + 'px';
+        } else if(this.option.element.style.height !== '100vh') {
+            this.option.element.style.height = '100vh';
+        }
+
         if (!this.autoResize) {
             this.setImageSize(size);
         }
@@ -193,21 +200,15 @@ ImageSlider.prototype = {
         imageWidth = image.width * rasio;
         imageHeight = image.height * rasio;
 
-        if (imageHeight < this.currentScreen.height) {
-            rasio = this.currentScreen.height / imageHeight;
-            imageWidth = rasio * imageWidth;
-            imageHeight = rasio * imageHeight;
-        }
+        this.hasFullHeight = imageHeight > this.currentScreen.height;
 
-        image.width = imageWidth.toString();
-        image.height = imageHeight.toString();
         cssText += 'width : ' + imageWidth + 'px;';
         cssText += 'height : ' + imageHeight + 'px;';
 
         if (canSetPosition !== false) {
             top = (this.currentScreen.height - imageHeight) / 2.0;
             left = (this.currentScreen.width - imageWidth) / 2.0;
-            cssText += 'top : ' + top + 'px;';
+            cssText += 'top : ' + (this.hasFullHeight ? top : 0) + 'px;';
             cssText += 'left : ' + left + 'px;';
         }
         image.style.cssText += cssText;
@@ -245,6 +246,12 @@ ImageSlider.prototype = {
 
         for (var i = 0; i < this.option.itemLength; i++) {
             this.scaleToFit(this.option.items[i]);
+        }
+
+        if (!this.hasFullHeight) {
+            this.option.element.style.height = (this.option.items[this.currentIndex].height - 5) + 'px';
+        } else if(this.option.element.style.height !== '100vh') {
+            this.option.element.style.height = '100vh';
         }
 
         this.imageSize.width = this.option.items[this.currentIndex].width;
@@ -391,7 +398,7 @@ ImageSlider.prototype = {
 
         if (playback > 1.00) playback = 1;
         var diff = (this.imageSize.height - window.innerHeight) / 2.0;
-        var top = (1 - playback) * -(this.imageSize.height) - diff;
+        var top = (1 - playback) * -(this.imageSize.height) - (this.hasFullHeight ? diff : 0);
         this.option.items[this.nextIndex].style.cssText += ''.concat(
             'top : ' + top + 'px;', 'left : ' + this.option.items[this.currentIndex].style.left + ';', 'opacity : ' + playback + ';'
         );
@@ -403,7 +410,7 @@ ImageSlider.prototype = {
 
             this.option.items[this.currentIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.cssText += ''.concat(
-                'z-index : 0;', 'opacity : 0.0;', 'top : ' + (-this.option.items[this.nextIndex].height) + 'px;'
+                'z-index : 0;', 'opacity : 0.0;', 'top : ' + (this.option.items[this.nextIndex].height) + 'px;'
             );
             this.resizeOption.canSetNextPos = false;
             return;
@@ -417,7 +424,7 @@ ImageSlider.prototype = {
 
         if (playback > 1.00) playback = 1;
         var diff = (this.imageSize.height - window.innerHeight) / 2.0;
-        var top = (1 - playback) * this.imageSize.height - diff;
+        var top = (1 - playback) * this.imageSize.height - (this.hasFullHeight ?diff : 0);
         this.option.items[this.nextIndex].style.cssText += ''.concat(
             'top : ' + top + 'px;', 'left : ' + this.option.items[this.currentIndex].style.left + ';', 'opacity : ' + playback + ';'
         );
@@ -581,10 +588,11 @@ ImageSlider.prototype = {
 
         if (playback > 1.00) playback = 1;
         var diffX = (this.imageSize.width - width) / 2.0;
-        var diffY = (this.imageSize.height - height) / 2.0;
+        var diffY = (this.hasFullHeight ? (this.imageSize.height - height) / 2.0 : 0);
+        var top = (playback * (this.hasFullHeight ? height : this.imageSize.height) / 2.0 - ((1 - playback) * diffY));
         this.option.items[this.currentIndex].style.cssText += ''.concat(
             'opacity : ' + (1 - playback) + ';', 'left : ' + (playback * width / 2.0 - ((1 - playback) * diffX)) + 'px;',
-            'top : ' + (playback * height / 2.0 - ((1 - playback) * diffY)) + 'px;', 'width : ' + ((1 - playback) * this.imageSize.width) + 'px;',
+            'top : ' + top + 'px;', 'width : ' + ((1 - playback) * this.imageSize.width) + 'px;',
             'height : ' + ((1 - playback) * this.imageSize.height) + 'px;'
         );
 
@@ -602,7 +610,7 @@ ImageSlider.prototype = {
 
             this.option.items[this.currentIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.cssText += ''.concat(
-                'z-index : 0;', 'opacity : 1.0;', 'top : ' + height / 2.0 + 'px;',
+                'z-index : 0;', 'opacity : 1.0;', 'top : ' + (this.hasFullHeight ? height : this.imageSize.height) / 2.0 + 'px;',
                 'left : ' + width / 2.0 + 'px;', 'width : 0px;', 'height : 0px;'
             );
             this.resizeOption.canResizeNext = false;
@@ -616,7 +624,7 @@ ImageSlider.prototype = {
 
         if (playback > 1.00) playback = 1;
         var diffX = (this.imageSize.width - width) / 2.0;
-        var diffY = (this.imageSize.height - height) / 2.0;
+        var diffY = (this.hasFullHeight ? (this.imageSize.height - height) / 2.0 : 0);
         this.option.items[this.nextIndex].style.cssText += ''.concat(
             'opacity : ' + playback + ';', 'width : ' + playback * this.imageSize.width + 'px;', 'height : ' + playback * this.imageSize.height + 'px;',
             'left : ' + ((1 - playback) * this.imageSize.width / 2.0 - (playback) * diffX) + 'px;',
@@ -834,10 +842,10 @@ ImageSlider.prototype = {
 
         if (playback > 1.00) playback = 1;
         var range = 1 - playback;
-        var diff = (this.imageSize.height - height) / 2.0;
+        var diff = (this.hasFullHeight ? (this.imageSize.height - height) / 2.0 : 0);
         this.option.items[this.currentIndex].style.cssText += ''.concat(
             'opacity : ' + range + ';', 'height : ' + range * this.imageSize.height + 'px;',
-            'width : ' + this.imageSize.width + 'px;', 'top : ' + (playback * height / 2.0 - (1 - playback) * diff) + 'px;',
+            'width : ' + this.imageSize.width + 'px;', 'top : ' + (playback * (this.hasFullHeight ? height : this.imageSize.height) / 2.0 - (1 - playback) * diff) + 'px;',
             'left : ' + this.option.items[this.nextIndex].style.left + ';'
         );
 
@@ -854,7 +862,7 @@ ImageSlider.prototype = {
 
             this.option.items[this.currentIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.cssText += ''.concat(
-                'z-index : 0;', 'opacity : 0.0;', 'top : ' + (height / 2.0) + 'px;', 'height : 0px;'
+                'z-index : 0;', 'opacity : 0.0;', 'top : ' + ((this.hasFullHeight ? height : this.imageSize.height) / 2.0) + 'px;', 'height : 0px;'
             );
             this.resizeOption.canResizeNext = false;
             return;
@@ -867,10 +875,10 @@ ImageSlider.prototype = {
 
         if (playback > 1.00) playback = 1;
         var range = 1 - playback;
-        var diff = (this.imageSize.height - height) / 2.0;
+        var diff = (this.hasFullHeight ? (this.imageSize.height - height) / 2.0 : 0);
         this.option.items[this.nextIndex].style.cssText += ''.concat(
             'opacity : ' + playback + ';', 'height : ' + (playback * this.imageSize.height) + 'px;',
-            'width : ' + this.imageSize.width + 'px;', 'top : ' + (range * height / 2.0 - (playback * diff)) + 'px;',
+            'width : ' + this.imageSize.width + 'px;', 'top : ' + (range * (this.hasFullHeight ? height : this.imageSize.height) / 2.0 - (playback * diff)) + 'px;',
             'left : ' + this.option.items[this.currentIndex].style.left + ';'
         );
 
@@ -971,7 +979,7 @@ ImageSlider.prototype = {
 
             this.option.items[this.currentIndex].style.zIndex = -1;
             this.option.items[this.nextIndex].style.cssText += ''.concat(
-                'z-index : 0;', 'opacity : 1.0;', 'top : ' + (-this.option.items[this.nextIndex].height) + 'px;'
+                'z-index : 0;', 'opacity : 0.0;', 'top : ' + (-this.option.items[this.nextIndex].height) + 'px;'
             );
             this.resizeOption.canSetCurrentPos = false;
             this.resizeOption.canSetNextPos = false;
@@ -985,10 +993,10 @@ ImageSlider.prototype = {
         }
 
         if (playback > 1.00) playback = 1;
-        var diff = (this.option.items[this.nextIndex].height - window.innerHeight) / 2.0;
+        var diff = (this.hasFullHeight ? (this.option.items[this.nextIndex].height - window.innerHeight) / 2.0 : 0);
         var top = (1 - playback) * -(this.option.items[this.nextIndex].height) - diff;
         this.option.items[this.nextIndex].style.cssText += ''.concat(
-            'top : ' + top + 'px;', 'width : ' + this.imageSize.width + 'px;'
+            'top : ' + top + 'px;', 'width : ' + this.imageSize.width + 'px;', 'opacity : 1.0;'
         );
         this.option.items[this.currentIndex].style.cssText += ''.concat(
             'top : ' + ((playback * 0.75) * this.imageSize.height - (1 - playback) * 0.75 * diff) + 'px;',
@@ -1016,7 +1024,7 @@ ImageSlider.prototype = {
         }
 
         if (playback > 1.00) playback = 1;
-        var diff = (this.imageSize.height - window.innerHeight) / 2.0;
+        var diff = (this.hasFullHeight ? (this.imageSize.height - window.innerHeight) / 2.0 : 0);
         var top = (1 - playback) * this.option.items[this.nextIndex].height - diff;
         this.option.items[this.nextIndex].style.cssText += ''.concat(
             'top : ' + top + 'px;', 'width : ' + this.imageSize.width + 'px;'
@@ -1131,7 +1139,7 @@ ImageSlider.prototype = {
 
         if (playback > 1.00) playback = 1;
         var diffX = (this.imageSize.width - width) / 2.0;
-        var diffY = (this.imageSize.height - height) / 2.0;
+        var diffY = (this.hasFullHeight ? (this.imageSize.height - height) / 2.0 : 0);
         this.option.items[this.currentIndex].style.cssText += ''.concat(
             'width : ' + (playback + 1) * this.imageSize.width + 'px;', 'left : ' + (-(playback) * this.imageSize.width / 2.0 - (1 - playback) * diffX) + 'px;',
             'height : ' + (playback + 1) * this.imageSize.height + 'px;',
